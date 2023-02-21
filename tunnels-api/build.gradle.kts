@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":common-api"))
 }
 
+val PACKAGES_URL = System.getenv("GH_PKG_URL") ?: "https://maven.pkg.github.com/compactmods/compactmachines-core"
 publishing {
     publications.register<MavenPublication>("tunnels") {
         artifactId = "tunnels-api"
@@ -22,7 +23,7 @@ publishing {
 
     repositories {
         // GitHub Packages
-        maven("https://maven.pkg.github.com/CompactMods/CompactMachines") {
+        maven(PACKAGES_URL) {
             name = "GitHubPackages"
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
