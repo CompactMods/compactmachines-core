@@ -3,10 +3,6 @@ architectury {
     common(targets)
 }
 
-loom {
-    // accessWidenerPath = file("src/main/resources/examplemod.accesswidener")
-}
-
 plugins {
     id("maven-publish")
     id("fabric-loom")
@@ -31,10 +27,6 @@ sourceSets {
             setSrcDirs(emptyList<String>())
         }
     }
-}
-
-loom {
-
 }
 
 tasks.withType<JavaCompile> {

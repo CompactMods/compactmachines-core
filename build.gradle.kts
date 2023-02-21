@@ -2,12 +2,7 @@
 
 import net.fabricmc.loom.task.RemapJarTask
 
-val modId = rootProject.property("mod_id") as String
-
-val versionMain: String = System.getenv("CM_SEMVER_VERSION") ?: "9.9.9"
-val versionBuild: String = System.getenv("CM_BUILD_NUM") ?: "0"
-val isRelease: Boolean = (System.getenv("CM_RELEASE") ?: "false").equals("true", true)
-val modVersion = if (isRelease) versionMain else "${versionMain}.${versionBuild}-nightly"
+val versionMain: String = System.getenv("CM_VERSION") ?: "0.0.0"
 
 plugins {
     java
@@ -46,7 +41,7 @@ subprojects {
 
     base {
         group = "dev.compactmods.compactmachines"
-        version = modVersion
+        version = versionMain
     }
 
     java {
@@ -90,8 +85,4 @@ allprojects {
         options.compilerArgs.add("-proc:none")
         options.compilerArgs.addAll(arrayOf("-Xmaxerrs", "9000"))
     }
-}
-
-subprojects {
-
 }

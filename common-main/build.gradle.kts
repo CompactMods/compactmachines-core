@@ -3,10 +3,6 @@ architectury {
     common(targets)
 }
 
-loom {
-    // accessWidenerPath = file("src/main/resources/examplemod.accesswidener")
-}
-
 repositories {
     mavenCentral() {
         content {
