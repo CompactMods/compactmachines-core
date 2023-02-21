@@ -2,7 +2,6 @@ package dev.compactmods.machines.api.recipe;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-import dev.compactmods.machines.api.tunnels.recipe.TunnelRecipeHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
@@ -48,7 +47,7 @@ public abstract class ItemWithNbtRecipeBuilder<T extends ItemWithNbtRecipeBuilde
         this.ensureValid(recipeId);
         this.advancement
                 .parent(new ResourceLocation("recipes/root"))
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(TunnelRecipeHelper.getRecipeId(recipeId)))
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId))
                 .rewards(AdvancementRewards.Builder.recipe(recipeId))
                 .requirements(RequirementsStrategy.OR);
 

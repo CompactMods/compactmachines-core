@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class TunnelHelper {
 
     public static Registry<TunnelDefinition> definitionRegistry() {
-        return RegistryAccess.builtinCopy().registryOrThrow(CMRegistryKeys.TYPES_REG_KEY);
+        return RegistryAccess.builtinCopy().registryOrThrow(TunnelDefinition.REGISTRY_KEY);
     }
 
     public static TunnelDefinition getDefinition(ResourceLocation tunnelType) {

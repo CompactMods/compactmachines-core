@@ -7,44 +7,18 @@ loom {
     // accessWidenerPath = file("src/main/resources/examplemod.accesswidener")
 }
 
-plugins {
-    id("maven-publish")
-    id("fabric-loom")
-}
-
 java {
     withSourcesJar()
     withJavadocJar()
 }
 
-sourceSets {
-    named("main") {
-        resources {
-            //The API has no resources
-            setSrcDirs(emptyList<String>())
-        }
-    }
-
-    named("test") {
-        resources {
-            //The test module has no resources
-            setSrcDirs(emptyList<String>())
-        }
-    }
-}
-
-loom {
-
-}
-
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-    options.compilerArgs.add("-proc:none")
+dependencies {
+    implementation(project(":common-api"))
 }
 
 publishing {
-    publications.register<MavenPublication>("api") {
-        artifactId = "core-api"
+    publications.register<MavenPublication>("tunnels") {
+        artifactId = "tunnels-api"
         groupId = "dev.compactmods.compactmachines"
 
         from(components.getByName("java"))

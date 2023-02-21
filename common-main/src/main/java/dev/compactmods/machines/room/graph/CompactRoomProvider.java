@@ -5,7 +5,6 @@ import com.google.common.graph.ValueGraphBuilder;
 import dev.compactmods.machines.api.core.Constants;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
-import dev.compactmods.machines.api.location.IDimensionalBlockPosition;
 import dev.compactmods.machines.api.room.IRoomLookup;
 import dev.compactmods.machines.api.room.IRoomOwnerLookup;
 import dev.compactmods.machines.api.room.registration.IMutableRoomRegistration;
@@ -215,11 +214,6 @@ public class CompactRoomProvider extends SavedData implements IRoomLookup, IRoom
         return graph.adjacentNodes(owners.get(owner)).stream()
                 .filter(RoomMetadataNode.class::isInstance)
                 .map(RoomMetadataNode.class::cast);
-    }
-
-    @Override
-    public Optional<IRoomRegistration> findByMachine(IDimensionalBlockPosition machine) {
-        return Optional.empty();
     }
 
     @Override

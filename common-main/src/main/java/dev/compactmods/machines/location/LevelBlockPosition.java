@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 
+@Deprecated(forRemoval = true, since = "5.2.0")
 public record LevelBlockPosition(ResourceKey<Level> dimension, BlockPos blockPos)
         implements IDimensionalBlockPosition {
 
