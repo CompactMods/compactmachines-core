@@ -4,6 +4,7 @@ env:
   GH_PKG_URL: "https://maven.pkg.github.com/${{ github.repository }}"
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
