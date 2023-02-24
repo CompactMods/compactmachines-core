@@ -7,9 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 
 import static dev.compactmods.machines.api.core.Constants.MOD_ID;
 
-public interface RoomUpgradeAction {
+public interface RoomUpgrade {
 
-    ResourceKey<Registry<RoomUpgradeAction>> REG_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "upgrade_actions"));
+    ResourceKey<Registry<RoomUpgrade>> REG_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "upgrade_actions"));
 
-    Codec<? extends RoomUpgradeAction> codec();
+    Codec<? extends RoomUpgrade> codec();
 }
