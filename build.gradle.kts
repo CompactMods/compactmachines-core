@@ -60,7 +60,7 @@ subprojects {
     }
 
     tasks.withType<RemapJarTask> {
-        targetNamespace.set("srg")
+        targetNamespace.set("named")
     }
 }
 
