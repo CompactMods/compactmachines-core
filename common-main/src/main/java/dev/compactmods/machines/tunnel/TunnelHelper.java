@@ -15,15 +15,6 @@ import java.util.stream.Stream;
 
 public class TunnelHelper {
 
-    public static Registry<TunnelDefinition> definitionRegistry() {
-        return RegistryAccess.builtinCopy().registryOrThrow(TunnelDefinition.REGISTRY_KEY);
-    }
-
-    public static TunnelDefinition getDefinition(ResourceLocation tunnelType) {
-        final var reg = definitionRegistry();
-        return reg.get(tunnelType);
-    }
-
     @NotNull
     public static Direction getNextDirection(Direction in) {
         return switch (in) {
