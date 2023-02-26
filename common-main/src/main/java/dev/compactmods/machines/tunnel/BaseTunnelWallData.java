@@ -15,8 +15,4 @@ public record BaseTunnelWallData(GlobalPos connection, ResourceLocation tunnelTy
             DimensionalPosCompat.CODEC.fieldOf(KEY_CONNECTION).forGetter(BaseTunnelWallData::connection),
             ResourceLocation.CODEC.fieldOf(KEY_TUNNEL_TYPE).forGetter(BaseTunnelWallData::tunnelType)
     ).apply(i, BaseTunnelWallData::new));
-
-    public TunnelDefinition tunnel() {
-        return TunnelHelper.getDefinition(tunnelType);
-    }
 }

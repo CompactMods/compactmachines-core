@@ -35,6 +35,5 @@ rootProject.name = "Compact Machines Core"
 
 include("common-api")
 include("common-main")
+include("common-compat")
 include("tunnels-api")
-
-// fabric.loom.multiProjectOptimisation=true
