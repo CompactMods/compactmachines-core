@@ -6,11 +6,6 @@ architectury {
     common(targets)
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 dependencies {
     implementation(project(":common-api"))
 }

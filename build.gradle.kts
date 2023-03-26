@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import net.fabricmc.loom.task.RemapJarTask
+import net.fabricmc.loom.task.RemapSourcesJarTask
 
 val versionMain: String = System.getenv("CM_VERSION") ?: "0.0.0"
 
@@ -46,6 +47,8 @@ subprojects {
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+        withJavadocJar()
+        withSourcesJar()
     }
 
     val loom = project.extensions.getByName<net.fabricmc.loom.api.LoomGradleExtensionAPI>("loom")
@@ -59,8 +62,12 @@ subprojects {
         })
     }
 
-    tasks.withType<RemapJarTask> {
+    tasks.withType<RemapSourcesJarTask> {
         targetNamespace.set("named")
+    }
+
+    tasks.withType<RemapJarTask> {
+        targetNamespace.set("srg")
     }
 }
 
@@ -70,11 +77,6 @@ allprojects {
     apply(plugin = "maven-publish")
 
     repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
         maven("https://maven.parchmentmc.org") {
             name = "ParchmentMC"
         }

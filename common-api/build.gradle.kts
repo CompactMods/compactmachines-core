@@ -11,11 +11,6 @@ plugins {
     id("fabric-loom")
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 sourceSets {
     named("main") {
         resources {
