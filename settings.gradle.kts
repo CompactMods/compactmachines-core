@@ -25,15 +25,11 @@ pluginManagement {
             name = "Fabric"
         }
     }
-
-    plugins {
-        id("fabric-loom").version(settings.extra["loom_version"] as String)
-    }
 }
 
 rootProject.name = "Compact Machines Core"
 
 include("common-api")
 include("common-main")
-include("common-compat")
+// include("common-compat")
 include("tunnels-api")
