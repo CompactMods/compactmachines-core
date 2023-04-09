@@ -13,7 +13,7 @@ plugins {
     java
     id("maven-publish")
     id("architectury-plugin") version "3.4-SNAPSHOT"
-    id("dev.architectury.loom") version "1.0-SNAPSHOT"
+    id("dev.architectury.loom") version "1.1-SNAPSHOT"
 }
 
 architectury {
@@ -23,6 +23,11 @@ architectury {
 
 loom {
     setGenerateSrgTiny(true)
+}
+
+base {
+    group = "dev.compactmods.compactmachines"
+    version = versionMain
 }
 
 java {
@@ -47,7 +52,7 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-${mcVersion}:${parchmentVersion}@zip")
     })
 
-    compileOnly(project(":common-api")) {
+    compileOnly(project(":common-api", "namedElements")) {
         isTransitive = false
     }
 }
