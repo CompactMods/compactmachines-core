@@ -39,15 +39,17 @@ repositories {
 
 val loom = project.extensions.getByName<net.fabricmc.loom.api.LoomGradleExtensionAPI>("loom")
 dependencies {
-    this.add("minecraft", "com.mojang:minecraft:${mcVersion}")
+    minecraft("com.mojang:minecraft:${mcVersion}")
 
     // The following line declares the mojmap mappings, you may use other mappings as well
-    this.add("mappings", loom.layered {
+    mappings(loom.layered {
         officialMojangMappings()
         parchment("org.parchmentmc.data:parchment-${mcVersion}:${parchmentVersion}@zip")
     })
 
-    implementation(project(":common-api"))
+    compileOnly(project(":common-api")) {
+        isTransitive = false
+    }
 }
 
 tasks.withType<Jar> {

@@ -25,14 +25,6 @@ loom {
     setGenerateSrgTiny(true)
 }
 
-repositories {
-    mavenCentral() {
-        content {
-            includeGroup("com.aventrix.jnanoid")
-        }
-    }
-}
-
 sourceSets {
     named("main") {
         resources {
@@ -61,6 +53,12 @@ java {
 }
 
 repositories {
+    mavenCentral() {
+        content {
+            includeGroup("com.aventrix.jnanoid")
+        }
+    }
+
     maven("https://maven.parchmentmc.org") {
         name = "ParchmentMC"
     }
