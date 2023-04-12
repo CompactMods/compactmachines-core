@@ -17,10 +17,9 @@ import net.minecraft.world.level.Level;
  * Represents a machine's external point. This can be either inside a machine or in a dimension somewhere.
  */
 public record CompactMachineNode(ResourceKey<Level> dimension, BlockPos position)
-        implements IGraphNode {
+        implements IGraphNode<CompactMachineNode> {
 
     public static final ResourceLocation TYPE = new ResourceLocation(Constants.MOD_ID, "machine");
-
 
     public static final Codec<CompactMachineNode> CODEC = RecordCodecBuilder.create(i -> i.group(
             Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(CompactMachineNode::dimension),
@@ -39,7 +38,7 @@ public record CompactMachineNode(ResourceKey<Level> dimension, BlockPos position
     }
 
     @Override
-    public IGraphNodeType getType() {
+    public IGraphNodeType<CompactMachineNode> getType() {
         return NODE_TYPE;
     }
 }
