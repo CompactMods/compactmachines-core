@@ -8,7 +8,7 @@ import dev.compactmods.machines.graph.IGraphNodeType;
 import dev.compactmods.machines.graph.SimpleGraphNodeType;
 import net.minecraft.resources.ResourceLocation;
 
-public record TunnelTypeNode(ResourceLocation id) implements IGraphNodeType, IGraphNode {
+public record TunnelTypeNode(ResourceLocation id) implements IGraphNode<TunnelTypeNode> {
     private static final ResourceLocation TYPE = new ResourceLocation(Constants.MOD_ID, "tunnel_type");
 
     public static final Codec<TunnelTypeNode> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -19,12 +19,7 @@ public record TunnelTypeNode(ResourceLocation id) implements IGraphNodeType, IGr
     public static final IGraphNodeType<TunnelTypeNode> NODE_TYPE = SimpleGraphNodeType.instance(CODEC);
 
     @Override
-    public Codec<TunnelTypeNode> codec() {
-        return CODEC;
-    }
-
-    @Override
-    public IGraphNodeType getType() {
+    public IGraphNodeType<TunnelTypeNode> getType() {
         return NODE_TYPE;
     }
 }
