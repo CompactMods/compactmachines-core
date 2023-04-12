@@ -7,7 +7,7 @@ import dev.compactmods.machines.graph.IGraphNodeType;
 import dev.compactmods.machines.graph.SimpleGraphNodeType;
 import net.minecraft.resources.ResourceLocation;
 
-public record RoomUpgradeGraphNode(ResourceLocation key) implements IGraphNode {
+public record RoomUpgradeGraphNode(ResourceLocation key) implements IGraphNode<RoomUpgradeGraphNode> {
 
     public static final Codec<RoomUpgradeGraphNode> CODEC = RecordCodecBuilder.create(i -> i.group(
             ResourceLocation.CODEC.fieldOf("upgrade").forGetter(RoomUpgradeGraphNode::key)
@@ -16,7 +16,7 @@ public record RoomUpgradeGraphNode(ResourceLocation key) implements IGraphNode {
     public static final IGraphNodeType<RoomUpgradeGraphNode> NODE_TYPE = SimpleGraphNodeType.instance(CODEC);
 
     @Override
-    public IGraphNodeType getType() {
+    public IGraphNodeType<RoomUpgradeGraphNode> getType() {
         return NODE_TYPE;
     }
 }
