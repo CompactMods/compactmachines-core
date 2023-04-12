@@ -1,7 +1,8 @@
 package dev.compactmods.machines.graph;
 
+import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 
 public interface IGraphEdge<T extends IGraphEdge<T>> {
-    @NotNull IGraphEdgeType<T> getEdgeType();
+    @NotNull Codec<T> codec();
 }

@@ -7,8 +7,6 @@ import dev.compactmods.machines.api.room.registration.IRoomRegistration;
 import dev.compactmods.machines.api.room.registration.IRoomSpawnLookup;
 import dev.compactmods.machines.codec.CodecExtensions;
 import dev.compactmods.machines.graph.IGraphNode;
-import dev.compactmods.machines.graph.IGraphNodeType;
-import dev.compactmods.machines.graph.SimpleGraphNodeType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +14,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -38,16 +37,9 @@ public record RoomMetadataNode(String code, int color, Vec3i dimensions, Vec3 ce
             CodecExtensions.VEC2.fieldOf("spawnRot").forGetter(RoomMetadataNode::spawnRotation)
     ).apply(i, RoomMetadataNode::new));
 
-    public static final IGraphNodeType<RoomMetadataNode> NODE_TYPE = SimpleGraphNodeType.instance(CODEC);
-
     @Override
     public String toString() {
         return "Room Meta [id=%s]".formatted(code);
-    }
-
-    @Override
-    public IGraphNodeType<RoomMetadataNode> getType() {
-        return NODE_TYPE;
     }
 
     @Override
@@ -89,7 +81,8 @@ public record RoomMetadataNode(String code, int color, Vec3i dimensions, Vec3 ce
         return ChunkPos.rangeClosed(new ChunkPos(min), new ChunkPos(max));
     }
 
-    public Codec<RoomMetadataNode> codec() {
+    @Override
+    public @NotNull Codec<RoomMetadataNode> codec() {
         return CODEC;
     }
 }

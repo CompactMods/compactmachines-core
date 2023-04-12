@@ -4,10 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.codec.CodecExtensions;
 import dev.compactmods.machines.graph.IGraphNode;
-import dev.compactmods.machines.graph.IGraphNodeType;
-import dev.compactmods.machines.graph.SimpleGraphNodeType;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 public record RoomSpawnNode(Vec3 position, Vec2 rotation) implements IGraphNode<RoomSpawnNode> {
 
@@ -16,10 +15,8 @@ public record RoomSpawnNode(Vec3 position, Vec2 rotation) implements IGraphNode<
             CodecExtensions.VEC2.fieldOf("rotation").forGetter(RoomSpawnNode::rotation)
     ).apply(i, RoomSpawnNode::new));
 
-    public static final IGraphNodeType<RoomSpawnNode> NODE_TYPE = SimpleGraphNodeType.instance(CODEC);
-
     @Override
-    public IGraphNodeType<RoomSpawnNode> getType() {
-        return NODE_TYPE;
+    public @NotNull Codec<RoomSpawnNode> codec() {
+        return CODEC;
     }
 }

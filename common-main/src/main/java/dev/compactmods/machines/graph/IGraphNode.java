@@ -1,5 +1,9 @@
 package dev.compactmods.machines.graph;
 
+import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.NotNull;
+
 public interface IGraphNode<T extends IGraphNode<T>> {
-    IGraphNodeType<T> getType();
+    @NotNull
+    Codec<T> codec();
 }

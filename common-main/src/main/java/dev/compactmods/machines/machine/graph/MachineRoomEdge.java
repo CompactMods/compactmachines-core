@@ -2,15 +2,11 @@ package dev.compactmods.machines.machine.graph;
 
 import com.mojang.serialization.Codec;
 import dev.compactmods.machines.graph.IGraphEdge;
-import dev.compactmods.machines.graph.IGraphEdgeType;
-import dev.compactmods.machines.graph.SimpleGraphEdgeType;
 import org.jetbrains.annotations.NotNull;
 
 public record MachineRoomEdge() implements IGraphEdge<MachineRoomEdge> {
 
     public static final Codec<MachineRoomEdge> CODEC = Codec.unit(MachineRoomEdge::new);
-
-    public static final IGraphEdgeType<MachineRoomEdge> EDGE_TYPE = SimpleGraphEdgeType.instance(CODEC);
 
     @Override
     public boolean equals(Object obj) {
@@ -29,7 +25,7 @@ public record MachineRoomEdge() implements IGraphEdge<MachineRoomEdge> {
 
     @NotNull
     @Override
-    public IGraphEdgeType<MachineRoomEdge> getEdgeType() {
-        return EDGE_TYPE;
+    public Codec<MachineRoomEdge> codec() {
+        return CODEC;
     }
 }

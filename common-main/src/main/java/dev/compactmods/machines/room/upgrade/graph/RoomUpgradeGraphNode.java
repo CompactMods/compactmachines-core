@@ -3,9 +3,8 @@ package dev.compactmods.machines.room.upgrade.graph;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.graph.IGraphNode;
-import dev.compactmods.machines.graph.IGraphNodeType;
-import dev.compactmods.machines.graph.SimpleGraphNodeType;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public record RoomUpgradeGraphNode(ResourceLocation key) implements IGraphNode<RoomUpgradeGraphNode> {
 
@@ -13,10 +12,8 @@ public record RoomUpgradeGraphNode(ResourceLocation key) implements IGraphNode<R
             ResourceLocation.CODEC.fieldOf("upgrade").forGetter(RoomUpgradeGraphNode::key)
     ).apply(i, RoomUpgradeGraphNode::new));
 
-    public static final IGraphNodeType<RoomUpgradeGraphNode> NODE_TYPE = SimpleGraphNodeType.instance(CODEC);
-
     @Override
-    public IGraphNodeType<RoomUpgradeGraphNode> getType() {
-        return NODE_TYPE;
+    public @NotNull Codec<RoomUpgradeGraphNode> codec() {
+        return CODEC;
     }
 }

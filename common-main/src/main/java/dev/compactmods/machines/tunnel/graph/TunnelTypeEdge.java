@@ -4,32 +4,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.api.core.Constants;
 import dev.compactmods.machines.graph.IGraphEdge;
-import dev.compactmods.machines.graph.IGraphEdgeType;
-import dev.compactmods.machines.graph.SimpleGraphEdgeType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public final class TunnelTypeEdge implements IGraphEdge<TunnelTypeEdge> {
+public record TunnelTypeEdge() implements IGraphEdge<TunnelTypeEdge> {
     private static final ResourceLocation TYPE = new ResourceLocation(Constants.MOD_ID, "tunnel_type");
 
-    public static final Codec<TunnelTypeEdge> CODEC = RecordCodecBuilder.create(i -> i.group(
-            ResourceLocation.CODEC.fieldOf("type").forGetter(x -> TYPE)
-    ).apply(i, (t) -> new TunnelTypeEdge()));
-
-    public static final IGraphEdgeType<TunnelTypeEdge> EDGE_TYPE = SimpleGraphEdgeType.instance(CODEC);
-
-    public TunnelTypeEdge() {
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj == this || obj != null && obj.getClass() == this.getClass();
-    }
-
-    @Override
-    public int hashCode() {
-        return 1;
-    }
+    public static final Codec<TunnelTypeEdge> CODEC = Codec.unit(new TunnelTypeEdge());
 
     @Override
     public String toString() {
@@ -37,7 +18,7 @@ public final class TunnelTypeEdge implements IGraphEdge<TunnelTypeEdge> {
     }
 
     @Override
-    public @NotNull IGraphEdgeType<TunnelTypeEdge> getEdgeType() {
-        return EDGE_TYPE;
+    public @NotNull Codec<TunnelTypeEdge> codec() {
+        return CODEC;
     }
 }
