@@ -3,6 +3,7 @@ package dev.compactmods.machines.api.tunnels.lifecycle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
+@FunctionalInterface
 public interface InstancedTunnel<T extends TunnelInstance> {
 
     /**
