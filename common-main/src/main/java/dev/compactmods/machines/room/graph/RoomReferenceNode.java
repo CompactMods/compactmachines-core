@@ -11,7 +11,7 @@ import dev.compactmods.machines.graph.SimpleGraphNodeType;
 /**
  * Represents the inside of a Compact Machine.
  */
-public record RoomReferenceNode(String code) implements IGraphNode {
+public record RoomReferenceNode(String code) implements IGraphNode<RoomReferenceNode> {
 
     public static final Codec<RoomReferenceNode> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.fieldOf("code").forGetter(RoomReferenceNode::code)
@@ -29,7 +29,7 @@ public record RoomReferenceNode(String code) implements IGraphNode {
     }
 
     @Override
-    public IGraphNodeType getType() {
+    public IGraphNodeType<RoomReferenceNode> getType() {
         return NODE_TYPE;
     }
 }
