@@ -1,4 +1,4 @@
-package dev.compactmods.machines.room.graph;
+package dev.compactmods.machines.room.graph.node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

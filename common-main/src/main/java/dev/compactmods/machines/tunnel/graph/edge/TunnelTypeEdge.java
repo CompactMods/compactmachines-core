@@ -1,7 +1,6 @@
-package dev.compactmods.machines.tunnel.graph;
+package dev.compactmods.machines.tunnel.graph.edge;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.api.core.Constants;
 import dev.compactmods.machines.graph.IGraphEdge;
 import net.minecraft.resources.ResourceLocation;

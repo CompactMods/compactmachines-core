@@ -1,4 +1,4 @@
-package dev.compactmods.machines.room.graph;
+package dev.compactmods.machines.room.graph.edge;
 
 import com.mojang.serialization.Codec;
 import dev.compactmods.machines.graph.IGraphEdge;

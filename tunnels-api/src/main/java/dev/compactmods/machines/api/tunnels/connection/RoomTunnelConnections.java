@@ -7,6 +7,7 @@ import net.minecraft.core.GlobalPos;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Deprecated(forRemoval = true, since = "2.2.0")
 public interface RoomTunnelConnections {
     /**
      * Fetches sided redstone tunnel locations inside a machine room, based on connected machine

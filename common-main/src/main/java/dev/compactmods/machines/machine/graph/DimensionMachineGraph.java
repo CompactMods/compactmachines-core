@@ -8,7 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.LoggingUtil;
 import dev.compactmods.machines.graph.IGraphEdge;
 import dev.compactmods.machines.graph.IGraphNode;
-import dev.compactmods.machines.room.graph.RoomReferenceNode;
+import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;

@@ -1,5 +1,6 @@
 package dev.compactmods.machines.room.graph;
 
+import dev.compactmods.machines.room.graph.node.RoomMetadataNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec2;

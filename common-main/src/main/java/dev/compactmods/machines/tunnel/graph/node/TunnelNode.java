@@ -1,4 +1,4 @@
-package dev.compactmods.machines.tunnel.graph;
+package dev.compactmods.machines.tunnel.graph.node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -10,7 +10,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public record TunnelNode(BlockPos position) implements IGraphNode<TunnelNode> {
@@ -25,6 +24,7 @@ public record TunnelNode(BlockPos position) implements IGraphNode<TunnelNode> {
         return "TunnelNode[position=%s]".formatted(position);
     }
 
+    @Deprecated(forRemoval = true, since = "2.2.0")
     public Optional<Direction> getTunnelSide(RoomTunnelConnections connections) {
         return connections.getConnectedSide(position);
     }
