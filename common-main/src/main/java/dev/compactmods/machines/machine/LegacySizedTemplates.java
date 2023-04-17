@@ -9,7 +9,7 @@ import net.minecraft.util.FastColor;
  * @deprecated These templates will be removed in 1.20, and the system will become fully data controlled.
  * Do not assume these are valid at any point!
  */
-@Deprecated(forRemoval = true, since = "5.2.0")
+@Deprecated(forRemoval = true, since = "2.2.0")
 public enum LegacySizedTemplates {
     EMPTY_TINY("tiny", 3, FastColor.ARGB32.color(255, 201, 91, 19)),
     EMPTY_SMALL("small", 5, FastColor.ARGB32.color(255, 212, 210, 210)),

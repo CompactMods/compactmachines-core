@@ -14,14 +14,14 @@ public interface TunnelTeardownHandler<Instance extends TunnelInstance> extends 
     /**
      * @deprecated Implement {@link ITunnelRotationEventListener}.
      */
-    @Deprecated(since = "5.2.0", forRemoval = true)
+    @Deprecated(since = "2.2.0", forRemoval = true)
     default void onRotated(TunnelPosition position, Instance instance, Direction oldSide, Direction newSide) {
     }
 
     /**
      * @deprecated Implement {@link ITunnelRemoveEventListener}.
      */
-    @Deprecated(since = "5.2.0", forRemoval = true)
+    @Deprecated(since = "2.2.0", forRemoval = true)
     default void onRemoved(TunnelPosition position, Instance instance) {
     }
 }

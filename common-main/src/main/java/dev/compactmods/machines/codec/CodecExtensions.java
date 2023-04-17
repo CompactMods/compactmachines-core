@@ -29,7 +29,7 @@ public abstract class CodecExtensions {
             .comapFlatMap(i -> Util.fixedSize(i, 2)
                     .map(arr -> new ChunkPos(arr[0], arr[1])), pos -> IntStream.of(pos.x, pos.z));
 
-    @Deprecated(forRemoval = true, since = "5.2.0")
+    @Deprecated(forRemoval = true, since = "2.2.0")
     public static final Codec<UUID> UUID_STRING = Codec.STRING.comapFlatMap((s) -> {
         try {
             return DataResult.success(UUID.fromString(s));
