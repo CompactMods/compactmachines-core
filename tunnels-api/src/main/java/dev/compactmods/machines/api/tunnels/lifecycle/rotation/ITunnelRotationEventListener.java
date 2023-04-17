@@ -34,9 +34,9 @@ public interface ITunnelRotationEventListener<T extends TunnelInstance> {
          *
          * @return Return false to cancel the rotation.
          *
-         * @since 5.2.0
+         * @since 2.2.0
          */
-        boolean beforeRotate(MinecraftServer server, TunnelPosition oldPosition, TunnelPosition newPosition, ITunnelRotationReason reason);
+        boolean beforeRotate(MinecraftServer server, TunnelPosition oldPosition, TunnelPosition newPosition, @Nullable ITunnelRotationReason reason);
     }
 
     @FunctionalInterface
@@ -49,8 +49,9 @@ public interface ITunnelRotationEventListener<T extends TunnelInstance> {
          * @param oldPosition The previous state of the machine the tunnel was connected to.
          * @param newPosition The upcoming state of the machine the tunnel will connect to.
          * @param reason      The reason the tunnel rotated.
-         * @since 5.2.0
+         *
+         * @since 2.2.0
          */
-        void afterRotate(MinecraftServer server, TunnelPosition oldPosition, TunnelPosition newPosition, ITunnelRotationReason reason);
+        void afterRotate(MinecraftServer server, TunnelPosition oldPosition, TunnelPosition newPosition, @Nullable ITunnelRotationReason reason);
     }
 }

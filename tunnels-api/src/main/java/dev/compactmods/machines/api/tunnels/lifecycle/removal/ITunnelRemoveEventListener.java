@@ -32,7 +32,7 @@ public interface ITunnelRemoveEventListener<T extends TunnelInstance> {
          *
          * @return Return false to cancel the tunnel being removed.
          */
-        boolean beforeRemove(MinecraftServer server, TunnelPosition position, ITunnelRemoveReason reason);
+        boolean beforeRemove(MinecraftServer server, TunnelPosition position, @Nullable ITunnelRemoveReason reason);
     }
 
     @FunctionalInterface
@@ -44,6 +44,6 @@ public interface ITunnelRemoveEventListener<T extends TunnelInstance> {
          * @param position  The position of the tunnel in-world.
          * @param reason    The reason the tunnel was removed.
          */
-        void afterRemove(MinecraftServer server, TunnelPosition position, ITunnelRemoveReason reason);
+        void afterRemove(MinecraftServer server, TunnelPosition position, @Nullable ITunnelRemoveReason reason);
     }
 }
