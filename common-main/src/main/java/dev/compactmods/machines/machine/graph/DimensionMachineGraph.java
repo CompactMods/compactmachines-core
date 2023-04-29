@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Stores information on how external machines connect to the rooms in the compact machine
@@ -133,6 +134,14 @@ public class DimensionMachineGraph extends SavedData {
         graph.putEdgeValue(machineNode, roomNode, new MachineRoomEdge());
 
         this.setDirty();
+    }
+
+    public Stream<BlockPos> machines() {
+        return machines.keySet().stream();
+    }
+
+    public Stream<String> rooms() {
+        return rooms.keySet().stream();
     }
 
     public Set<BlockPos> connectedMachines(String room) {
