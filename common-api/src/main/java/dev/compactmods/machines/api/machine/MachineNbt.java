@@ -6,4 +6,6 @@ public abstract class MachineNbt {
 
     public static final String NBT_TEMPLATE_ID = "template_id";
     public static final String NBT_COLOR = "machine_color";
+
+    public static final String NBT_CUSTOM_NAME = "custom_name";
 }
