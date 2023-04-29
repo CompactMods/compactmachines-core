@@ -76,11 +76,6 @@ public class MutableRoomRegistration implements IMutableRoomRegistration {
     }
 
     @Override
-    public Optional<ResourceLocation> getTemplate() {
-        return currentData.getTemplate();
-    }
-
-    @Override
     public Stream<ChunkPos> chunks() {
         return null;
     }
