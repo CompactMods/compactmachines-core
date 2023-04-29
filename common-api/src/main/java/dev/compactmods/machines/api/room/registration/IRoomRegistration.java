@@ -28,7 +28,5 @@ public interface IRoomRegistration extends IBasicRoomInfo {
 
     Vec2 spawnRotation(IRoomSpawnLookup spawns);
 
-    Optional<ResourceLocation> getTemplate();
-
     Stream<ChunkPos> chunks();
 }

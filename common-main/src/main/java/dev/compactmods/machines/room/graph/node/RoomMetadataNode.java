@@ -68,11 +68,6 @@ public record RoomMetadataNode(String code, int color, Vec3i dimensions, Vec3 ce
     }
 
     @Override
-    public Optional<ResourceLocation> getTemplate() {
-        return Optional.empty();
-    }
-
-    @Override
     public Stream<ChunkPos> chunks() {
         AABB outerBounds = outerBounds();
         BlockPos min = new BlockPos(outerBounds.minX, outerBounds.minY, outerBounds.minZ);
