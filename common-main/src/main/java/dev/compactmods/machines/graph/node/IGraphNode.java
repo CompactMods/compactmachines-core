@@ -1,4 +1,4 @@
-package dev.compactmods.machines.graph;
+package dev.compactmods.machines.graph.node;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;

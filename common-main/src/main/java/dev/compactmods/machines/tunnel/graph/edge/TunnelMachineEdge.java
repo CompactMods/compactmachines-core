@@ -3,7 +3,7 @@ package dev.compactmods.machines.tunnel.graph.edge;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.api.core.Constants;
-import dev.compactmods.machines.graph.IGraphEdge;
+import dev.compactmods.machines.graph.edge.IGraphEdge;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;

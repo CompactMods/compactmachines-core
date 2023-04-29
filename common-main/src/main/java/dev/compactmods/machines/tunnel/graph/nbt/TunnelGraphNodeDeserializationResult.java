@@ -1,6 +1,6 @@
 package dev.compactmods.machines.tunnel.graph.nbt;
 
-import dev.compactmods.machines.graph.IGraphNode;
+import dev.compactmods.machines.graph.node.IGraphNode;
 
 import java.util.Map;
 import java.util.UUID;

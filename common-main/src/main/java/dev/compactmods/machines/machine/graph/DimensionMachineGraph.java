@@ -6,9 +6,12 @@ import com.google.common.graph.ValueGraphBuilder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.LoggingUtil;
-import dev.compactmods.machines.graph.IGraphEdge;
-import dev.compactmods.machines.graph.IGraphNode;
+import dev.compactmods.machines.graph.edge.IGraphEdge;
+import dev.compactmods.machines.graph.node.IGraphNode;
+import dev.compactmods.machines.machine.graph.edge.MachineRoomEdge;
+import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
 import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
+import dev.compactmods.machines.graph.GraphTraversalHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -27,18 +30,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Stores information on how external machines connect to the rooms in the compact machine
  * dimension. Per-dimension since 4.3.0.
  */
+@SuppressWarnings("UnstableApiUsage")
 public class DimensionMachineGraph extends SavedData {
 
     private static final Logger LOG = LoggingUtil.modLog();
 
     private final ResourceKey<Level> level;
-    private final MutableValueGraph<IGraphNode, IGraphEdge> graph;
+    private final MutableValueGraph<IGraphNode<?>, IGraphEdge<?>> graph;
     private final Map<BlockPos, CompactMachineNode> machines;
     private final Map<String, RoomReferenceNode> rooms;
 
@@ -58,7 +61,7 @@ public class DimensionMachineGraph extends SavedData {
         rooms = new HashMap<>();
     }
 
-    public DimensionMachineGraph(ResourceKey<Level> level, @NotNull CompoundTag nbt) {
+    private DimensionMachineGraph(ResourceKey<Level> level, @NotNull CompoundTag nbt) {
         this(level);
 
         if (nbt.contains("graph")) {
@@ -68,16 +71,11 @@ public class DimensionMachineGraph extends SavedData {
                     .resultOrPartial(LOG::error)
                     .orElseThrow();
 
-            loadConnections(connectionData);
-        }
-    }
-
-    private void loadConnections(List<CompactMachineConnectionInfo> connectionInfo) {
-        for (CompactMachineConnectionInfo i : connectionInfo) {
-            addRoom(i.roomCode);
-            for (var connectedMachine : i.machines()) {
-                addMachine(connectedMachine);
-                connectMachineToRoom(connectedMachine, i.roomCode);
+            for (CompactMachineConnectionInfo i : connectionData) {
+                registerRoom(i.roomCode);
+                for (var connectedMachine : i.machines()) {
+                    register(connectedMachine, i.roomCode);
+                }
             }
         }
     }
@@ -91,7 +89,7 @@ public class DimensionMachineGraph extends SavedData {
     private List<CompactMachineConnectionInfo> buildConnections() {
         List<CompactMachineConnectionInfo> result = new ArrayList<>();
         this.rooms.forEach((roomCode, node) -> {
-            final var machines = this.getMachinesFor(roomCode);
+            final var machines = this.connectedMachines(roomCode);
             CompactMachineConnectionInfo roomInfo = new CompactMachineConnectionInfo(roomCode, ImmutableList.copyOf(machines));
             result.add(roomInfo);
         });
@@ -99,7 +97,7 @@ public class DimensionMachineGraph extends SavedData {
         return result;
     }
 
-    public void addMachine(BlockPos machine) {
+    private void registerMachine(BlockPos machine) {
         if (this.machines.containsKey(machine))
             return;
 
@@ -111,7 +109,7 @@ public class DimensionMachineGraph extends SavedData {
         this.setDirty();
     }
 
-    public void addRoom(String roomCode) {
+    private void registerRoom(String roomCode) {
         if (this.rooms.containsKey(roomCode))
             return;
 
@@ -122,12 +120,12 @@ public class DimensionMachineGraph extends SavedData {
         this.setDirty();
     }
 
-    public void connectMachineToRoom(BlockPos machine, String room) {
+    public void register(BlockPos machine, String room) {
         if (!machines.containsKey(machine))
-            addMachine(machine);
+            registerMachine(machine);
 
         if (!rooms.containsKey(room))
-            addRoom(room);
+            registerRoom(room);
 
         var machineNode = machines.get(machine);
         var roomNode = rooms.get(room);
@@ -137,68 +135,59 @@ public class DimensionMachineGraph extends SavedData {
         this.setDirty();
     }
 
-    public Set<BlockPos> getMachinesFor(String room) {
-        if(!rooms.containsKey(room))
+    public Set<BlockPos> connectedMachines(String room) {
+        if (!rooms.containsKey(room))
             return Collections.emptySet();
 
-        var node = this.rooms.get(room);
-        var inbound = graph.predecessors(node);
-
-        return inbound.stream()
-                .filter(CompactMachineNode.class::isInstance)
-                .map(CompactMachineNode.class::cast)
+        var roomNode = this.rooms.get(room);
+        return GraphTraversalHelper.predecessors(this.graph, roomNode, CompactMachineNode.class)
                 .map(CompactMachineNode::position)
                 .collect(Collectors.toSet());
     }
 
-    public Optional<String> getConnectedRoom(BlockPos machinePos) {
+    public Optional<String> connectedRoom(BlockPos machinePos) {
         if (!this.machines.containsKey(machinePos))
             return Optional.empty();
 
-        var node = this.machines.get(machinePos);
-        var connected = this.graph.successors(node);
-        return connected.stream()
-                .filter(n -> n instanceof RoomReferenceNode)
-                .map(n -> (RoomReferenceNode) n)
+        var machineNode = this.machines.get(machinePos);
+        return GraphTraversalHelper.successors(this.graph, machineNode, RoomReferenceNode.class)
                 .map(RoomReferenceNode::code)
                 .findFirst();
     }
 
-    public Stream<CompactMachineNode> getMachines() {
-        return this.machines.values().stream();
-    }
-
-    public void disconnectAndUnregister(int machine) {
-        if (!machines.containsKey(machine))
-            return;
-
-        final var node = machines.get(machine);
-        graph.removeNode(node);
-        machines.remove(machine);
-    }
-
-    public void removeRoom(String room) {
+    public void unregisterRoom(String room) {
         if (!this.rooms.containsKey(room))
             return;
 
         graph.removeNode(rooms.get(room));
         rooms.remove(room);
-    }
-
-    public void disconnect(BlockPos machine) {
-        if (!machines.containsKey(machine))
-            return;
-
-        final var node = machines.get(machine);
-        graph.successors(node).stream()
-                .filter(cn -> cn instanceof RoomReferenceNode)
-                .forEach(room -> graph.removeEdge(node, room));
 
         setDirty();
     }
 
-    public Optional<CompactMachineNode> getMachineNode(BlockPos worldPosition) {
-        return Optional.ofNullable(machines.get(worldPosition));
+    /**
+     * Removes a machine from the connection graph.
+     * If the machine was connected to a room, returns the previously connected room code.
+     *
+     * @param machine The machine to unregister.
+     *
+     * @return An optional, previously-connected room code.
+     */
+    public Optional<String> unregisterMachine(BlockPos machine) {
+        if (!machines.containsKey(machine))
+            return Optional.empty();
+
+        final var node = machines.get(machine);
+        final var prevConnectedRoom = GraphTraversalHelper.successors(this.graph, node, RoomReferenceNode.class)
+                .map(RoomReferenceNode::code)
+                .findFirst();
+
+        graph.removeNode(node);
+        machines.remove(machine);
+
+        setDirty();
+
+        return prevConnectedRoom;
     }
 
     @NotNull

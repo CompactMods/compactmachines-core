@@ -2,7 +2,7 @@ package dev.compactmods.machines.room.upgrade.graph;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.compactmods.machines.graph.IGraphNode;
+import dev.compactmods.machines.graph.node.IGraphNode;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 

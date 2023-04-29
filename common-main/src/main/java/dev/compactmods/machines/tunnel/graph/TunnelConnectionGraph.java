@@ -3,16 +3,16 @@ package dev.compactmods.machines.tunnel.graph;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 import dev.compactmods.machines.api.tunnels.TunnelDefinition;
-import dev.compactmods.machines.graph.IGraphEdge;
-import dev.compactmods.machines.graph.IGraphNode;
-import dev.compactmods.machines.machine.graph.CompactMachineNode;
-import dev.compactmods.machines.tunnel.graph.edge.GraphEdgeLookupResult;
+import dev.compactmods.machines.graph.edge.IGraphEdge;
+import dev.compactmods.machines.graph.node.IGraphNode;
+import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
+import dev.compactmods.machines.graph.edge.GraphEdgeLookupResult;
 import dev.compactmods.machines.tunnel.graph.edge.TunnelMachineEdge;
 import dev.compactmods.machines.tunnel.graph.edge.TunnelTypeEdge;
 import dev.compactmods.machines.tunnel.graph.nbt.TunnelGraphNbtSerializer;
 import dev.compactmods.machines.tunnel.graph.node.TunnelNode;
 import dev.compactmods.machines.tunnel.graph.node.TunnelTypeNode;
-import dev.compactmods.machines.tunnel.graph.traversal.GraphTraversalHelper;
+import dev.compactmods.machines.graph.GraphTraversalHelper;
 import dev.compactmods.machines.tunnel.graph.traversal.ITunnelFilter;
 import dev.compactmods.machines.tunnel.graph.traversal.TunnelMachineFilters;
 import net.minecraft.core.BlockPos;
@@ -114,7 +114,7 @@ public class TunnelConnectionGraph extends SavedData {
 
     private Optional<CompactMachineNode> machineNode(BlockPos tunnel) {
         var tNode = tunnels.get(tunnel);
-        return GraphTraversalHelper.successors(this, tNode, CompactMachineNode.class).findFirst();
+        return GraphTraversalHelper.successors(this.graph, tNode, CompactMachineNode.class).findFirst();
     }
 
     private Stream<TunnelNode> tunnelNodes(final ITunnelFilter... filters) {
@@ -228,7 +228,7 @@ public class TunnelConnectionGraph extends SavedData {
             return Optional.empty();
 
         var node = tunnels.get(pos);
-        return GraphTraversalHelper.edges(this, node, TunnelMachineEdge.class, CompactMachineNode.class)
+        return GraphTraversalHelper.edges(this.graph, node, TunnelMachineEdge.class, CompactMachineNode.class)
                 .map(tme -> tme.edgeValue().side())
                 .findFirst();
     }
@@ -238,7 +238,7 @@ public class TunnelConnectionGraph extends SavedData {
             return Optional.empty();
 
         var node = tunnels.get(tunnel);
-        var typeNode = GraphTraversalHelper.successors(this, node, TunnelTypeNode.class)
+        var typeNode = GraphTraversalHelper.successors(this.graph, node, TunnelTypeNode.class)
                 .findFirst()
                 .orElseThrow();
 
@@ -280,7 +280,7 @@ public class TunnelConnectionGraph extends SavedData {
         if (node == null) return Stream.empty();
 
         return tunnelNodes(TunnelMachineFilters.sided(machine, side))
-                .flatMap(tunnelNode -> GraphTraversalHelper.edges(this, tunnelNode, TunnelTypeEdge.class, TunnelTypeNode.class))
+                .flatMap(tunnelNode -> GraphTraversalHelper.edges(this.graph, tunnelNode, TunnelTypeEdge.class, TunnelTypeNode.class))
                 .map(GraphEdgeLookupResult::target)
                 .map(TunnelTypeNode::key)
                 .distinct();
@@ -288,7 +288,7 @@ public class TunnelConnectionGraph extends SavedData {
 
     public Stream<Direction> sides(final ITunnelFilter... filters) {
         return tunnelNodes(filters)
-                .flatMap(tn -> GraphTraversalHelper.edges(this, tn, TunnelMachineEdge.class))
+                .flatMap(tn -> GraphTraversalHelper.edges(this.graph, tn, TunnelMachineEdge.class))
                 .map(edge -> edge.edgeValue().side());
     }
 

@@ -1,7 +1,8 @@
-package dev.compactmods.machines.graph;
+package dev.compactmods.machines.machine.graph.node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.compactmods.machines.graph.node.IGraphNode;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;

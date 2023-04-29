@@ -2,22 +2,20 @@ package dev.compactmods.machines.tunnel.graph.nbt;
 
 import com.mojang.serialization.Codec;
 import dev.compactmods.machines.api.core.Constants;
-import dev.compactmods.machines.api.tunnels.TunnelDefinition;
 import dev.compactmods.machines.codec.NbtListCollector;
 import dev.compactmods.machines.tunnel.graph.TunnelConnectionGraph;
 import dev.compactmods.machines.tunnel.graph.edge.TunnelMachineEdge;
 import dev.compactmods.machines.tunnel.graph.edge.TunnelTypeEdge;
 import dev.compactmods.machines.tunnel.graph.node.TunnelNode;
 import dev.compactmods.machines.tunnel.graph.node.TunnelTypeNode;
-import dev.compactmods.machines.tunnel.graph.traversal.GraphTraversalHelper;
-import dev.compactmods.machines.graph.IGraphEdge;
-import dev.compactmods.machines.graph.IGraphNode;
-import dev.compactmods.machines.machine.graph.CompactMachineNode;
+import dev.compactmods.machines.graph.GraphTraversalHelper;
+import dev.compactmods.machines.graph.edge.IGraphEdge;
+import dev.compactmods.machines.graph.node.IGraphNode;
+import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -152,7 +150,7 @@ public class TunnelGraphNbtSerializer {
             final TunnelConnectionGraph connections, final Codec<T> serializer, final Class<T> nodeType
     ) {
         HashMap<T, UUID> nodeIds = new HashMap<>();
-        final ListTag listNbt = GraphTraversalHelper.nodes(connections, nodeType)
+        final ListTag listNbt = GraphTraversalHelper.nodes(connections.graph(), nodeType)
                 .map(node -> {
                     var id = UUID.randomUUID();
                     nodeIds.put(node, id);
@@ -173,7 +171,7 @@ public class TunnelGraphNbtSerializer {
             final TunnelConnectionGraph connections, final Map<IGraphNode<?>, UUID> nodeIds,
             final Codec<E> serializer, Class<E> edgeType
     ) {
-        return GraphTraversalHelper.edges(connections, edgeType)
+        return GraphTraversalHelper.edges(connections.graph(), edgeType)
                 .map(tme -> {
                     var edge = tme.edgeValue();
                     var edgeData = serializer.encodeStart(NbtOps.INSTANCE, edge)

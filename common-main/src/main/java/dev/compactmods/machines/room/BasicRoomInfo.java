@@ -1,4 +1,4 @@
-package dev.compactmods.machines.machine;
+package dev.compactmods.machines.room;
 
 import dev.compactmods.machines.api.room.registration.IBasicRoomInfo;
 

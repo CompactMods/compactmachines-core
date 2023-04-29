@@ -1,7 +1,7 @@
-package dev.compactmods.machines.machine.graph;
+package dev.compactmods.machines.machine.graph.edge;
 
 import com.mojang.serialization.Codec;
-import dev.compactmods.machines.graph.IGraphEdge;
+import dev.compactmods.machines.graph.edge.IGraphEdge;
 import org.jetbrains.annotations.NotNull;
 
 public record MachineRoomEdge() implements IGraphEdge<MachineRoomEdge> {

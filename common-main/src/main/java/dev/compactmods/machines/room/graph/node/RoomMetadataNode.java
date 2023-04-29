@@ -6,7 +6,7 @@ import dev.compactmods.machines.api.room.IRoomOwnerLookup;
 import dev.compactmods.machines.api.room.registration.IRoomRegistration;
 import dev.compactmods.machines.api.room.registration.IRoomSpawnLookup;
 import dev.compactmods.machines.codec.CodecExtensions;
-import dev.compactmods.machines.graph.IGraphNode;
+import dev.compactmods.machines.graph.node.IGraphNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;

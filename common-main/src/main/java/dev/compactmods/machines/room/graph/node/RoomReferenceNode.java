@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.api.room.IRoomLookup;
 import dev.compactmods.machines.api.room.registration.IRoomRegistration;
-import dev.compactmods.machines.graph.IGraphNode;
+import dev.compactmods.machines.graph.node.IGraphNode;
 import org.jetbrains.annotations.NotNull;
 
 /**

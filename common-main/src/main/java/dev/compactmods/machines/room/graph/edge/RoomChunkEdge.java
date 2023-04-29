@@ -1,7 +1,7 @@
 package dev.compactmods.machines.room.graph.edge;
 
 import com.mojang.serialization.Codec;
-import dev.compactmods.machines.graph.IGraphEdge;
+import dev.compactmods.machines.graph.edge.IGraphEdge;
 import org.jetbrains.annotations.NotNull;
 
 public record RoomChunkEdge() implements IGraphEdge<RoomChunkEdge> {

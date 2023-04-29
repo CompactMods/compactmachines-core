@@ -1,6 +1,6 @@
 package dev.compactmods.machines.tunnel.graph.nbt;
 
-import dev.compactmods.machines.graph.IGraphNode;
+import dev.compactmods.machines.graph.node.IGraphNode;
 import net.minecraft.nbt.ListTag;
 
 import java.util.Map;
