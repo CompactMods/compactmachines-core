@@ -23,6 +23,11 @@ public interface CMTags {
     TagKey<Block> MACHINE_BLOCK = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(Constants.MOD_ID, "machine"));
 
     /**
+     * Marks a block as an unbound Compact Machine; applied only to machines that are not yet bound to a room.
+     */
+    TagKey<Block> UNBOUND_MACHINE_BLOCK = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(Constants.MOD_ID, "new_machine"));
+
+    /**
      * Applied to solid wall items.
      */
     TagKey<Item> SOLID_WALL_ITEMS = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(Constants.MOD_ID, "solid_walls"));
