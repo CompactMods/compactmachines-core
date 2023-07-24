@@ -29,7 +29,9 @@ pluginManagement {
 
 rootProject.name = "Compact Machines Core"
 
-include("common-api")
-include("common-main")
+include("core-api")
+include("core")
 // include("common-compat")
-include("tunnels-api")
+include("tunnel-api")
+include("room-api")
+include("room-upgrade-api")
