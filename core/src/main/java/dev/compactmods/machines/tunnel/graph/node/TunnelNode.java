@@ -24,11 +24,6 @@ public record TunnelNode(BlockPos position) implements IGraphNode<TunnelNode> {
         return "TunnelNode[position=%s]".formatted(position);
     }
 
-    @Deprecated(forRemoval = true, since = "2.2.0")
-    public Optional<Direction> getTunnelSide(RoomTunnelConnections connections) {
-        return connections.getConnectedSide(position);
-    }
-
     @Override
     public @NotNull Codec<TunnelNode> codec() {
         return CODEC;

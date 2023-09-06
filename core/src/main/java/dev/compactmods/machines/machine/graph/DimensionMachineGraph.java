@@ -1,15 +1,14 @@
 package dev.compactmods.machines.machine.graph;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.graph.MutableValueGraph;
-import com.google.common.graph.ValueGraphBuilder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.LoggingUtil;
-import dev.compactmods.machines.graph.edge.IGraphEdge;
-import dev.compactmods.machines.graph.node.IGraphNode;
+import dev.compactmods.machines.graph.GraphAdjacentNodeStream;
 import dev.compactmods.machines.machine.graph.edge.MachineRoomEdge;
 import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
+import dev.compactmods.machines.room.graph.GraphFunctions;
+import dev.compactmods.machines.room.graph.MemoryGraph;
 import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
 import dev.compactmods.machines.graph.GraphTraversalHelper;
 import net.minecraft.core.BlockPos;
@@ -42,7 +41,7 @@ public class DimensionMachineGraph extends SavedData {
     private static final Logger LOG = LoggingUtil.modLog();
 
     private final ResourceKey<Level> level;
-    private final MutableValueGraph<IGraphNode<?>, IGraphEdge<?>> graph;
+    private final MemoryGraph graph;
     private final Map<BlockPos, CompactMachineNode> machines;
     private final Map<String, RoomReferenceNode> rooms;
 
@@ -54,10 +53,7 @@ public class DimensionMachineGraph extends SavedData {
 
     private DimensionMachineGraph(ResourceKey<Level> level) {
         this.level = level;
-        graph = ValueGraphBuilder
-                .directed()
-                .build();
-
+        graph = new MemoryGraph();
         machines = new HashMap<>();
         rooms = new HashMap<>();
     }
@@ -144,12 +140,15 @@ public class DimensionMachineGraph extends SavedData {
         return rooms.keySet().stream();
     }
 
+    private static final GraphAdjacentNodeStream<RoomReferenceNode, CompactMachineNode> FIND_MACHINE_NODE =
+            (graph, in) -> GraphTraversalHelper.predecessors(graph, in, CompactMachineNode.class);
+
     public Set<BlockPos> connectedMachines(String room) {
         if (!rooms.containsKey(room))
             return Collections.emptySet();
 
         var roomNode = this.rooms.get(room);
-        return GraphTraversalHelper.predecessors(this.graph, roomNode, CompactMachineNode.class)
+        return graph.adjacentNodes(FIND_MACHINE_NODE, roomNode)
                 .map(CompactMachineNode::position)
                 .collect(Collectors.toSet());
     }
@@ -159,9 +158,7 @@ public class DimensionMachineGraph extends SavedData {
             return Optional.empty();
 
         var machineNode = this.machines.get(machinePos);
-        return GraphTraversalHelper.successors(this.graph, machineNode, RoomReferenceNode.class)
-                .map(RoomReferenceNode::code)
-                .findFirst();
+        return graph.scalar(GraphFunctions.MACHINE_TO_ROOM_CODE, machineNode);
     }
 
     public void unregisterRoom(String room) {
@@ -186,12 +183,10 @@ public class DimensionMachineGraph extends SavedData {
         if (!machines.containsKey(machine))
             return Optional.empty();
 
-        final var node = machines.get(machine);
-        final var prevConnectedRoom = GraphTraversalHelper.successors(this.graph, node, RoomReferenceNode.class)
-                .map(RoomReferenceNode::code)
-                .findFirst();
+        final var machineNode = machines.get(machine);
+        final var prevConnectedRoom = graph.scalar(GraphFunctions.MACHINE_TO_ROOM_CODE, machineNode);
 
-        graph.removeNode(node);
+        graph.removeNode(machineNode);
         machines.remove(machine);
 
         setDirty();

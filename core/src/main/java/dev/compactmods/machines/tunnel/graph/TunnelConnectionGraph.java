@@ -7,6 +7,7 @@ import dev.compactmods.machines.graph.edge.IGraphEdge;
 import dev.compactmods.machines.graph.node.IGraphNode;
 import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
 import dev.compactmods.machines.graph.edge.GraphEdgeLookupResult;
+import dev.compactmods.machines.room.graph.GraphFunctions;
 import dev.compactmods.machines.tunnel.graph.edge.TunnelMachineEdge;
 import dev.compactmods.machines.tunnel.graph.edge.TunnelTypeEdge;
 import dev.compactmods.machines.tunnel.graph.nbt.TunnelGraphNbtSerializer;

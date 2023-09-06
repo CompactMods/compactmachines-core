@@ -9,22 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class ClientTunnelHandler {
 
-    @Deprecated(forRemoval = true, since = "2.2.1")
-    public static void setTunnel(BlockPos position, TunnelDefinition type) {
-        var level = Minecraft.getInstance().level;
-        if (level == null) return;
-
-        Minecraft.getInstance().tell(() -> {
-            if (level.getBlockEntity(position) instanceof ITunnelHolder tun) {
-                try {
-                    tun.setTunnelType(type);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
     @Nullable
     public static ITunnelHolder getTunnelHolder(BlockPos position) {
         var level = Minecraft.getInstance().level;

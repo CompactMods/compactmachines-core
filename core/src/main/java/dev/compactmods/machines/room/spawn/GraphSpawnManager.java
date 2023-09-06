@@ -1,16 +1,13 @@
 package dev.compactmods.machines.room.spawn;
 
-import com.google.common.graph.MutableValueGraph;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawn;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawns;
-import dev.compactmods.machines.graph.GraphTraversalHelper;
 import dev.compactmods.machines.graph.edge.GraphEdgeLookupResult;
-import dev.compactmods.machines.graph.edge.IGraphEdge;
-import dev.compactmods.machines.graph.node.IGraphNode;
 import dev.compactmods.machines.room.RoomUtil;
-import dev.compactmods.machines.room.graph.CompactRoomProvider;
+import dev.compactmods.machines.room.graph.MemoryGraph;
 import dev.compactmods.machines.room.graph.edge.RoomSpawnEdge;
+import dev.compactmods.machines.room.graph.GraphFunctions;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import dev.compactmods.machines.room.graph.node.RoomSpawnNode;
 import net.minecraft.Util;
@@ -27,25 +24,28 @@ import java.util.stream.Collectors;
 @SuppressWarnings("UnstableApiUsage")
 public class GraphSpawnManager implements IRoomSpawnManager {
 
-    private final CompactRoomProvider roomProvider;
+    private final MemoryGraph roomProvider;
     private final RoomRegistrationNode roomRegNode;
     private RoomSpawnNode defaultSpawn;
     private final Map<UUID, RoomSpawnNode> playerSpawns;
 
-    public GraphSpawnManager(CompactRoomProvider roomProvider, String roomCode) {
-        this.roomProvider = roomProvider;
+    public GraphSpawnManager(MemoryGraph roomGraph, String roomCode) {
+        this.roomProvider = roomGraph;
         this.playerSpawns = new HashMap<>();
 
-        this.roomRegNode = roomProvider.roomNode(roomCode).orElseThrow();
+        this.roomRegNode = roomGraph.nodes(GraphFunctions.ALL_REGISTRATIONS)
+                .filter(node -> node.code().equals(roomCode))
+                .findFirst()
+                .orElseThrow();
 
         // [ROOM REG NODE (code, room color, template) ]
         //         | RoomSpawnEdge (player UUID)
         //         v
         //  [RoomSpawnNode]
-        final var allRoomSpawns = GraphTraversalHelper.edges(roomProvider.getGraph(), roomRegNode, RoomSpawnEdge.class, RoomSpawnNode.class)
+        final var allRoomSpawns = roomGraph.edges(GraphFunctions.SPAWNS, roomRegNode)
                 .collect(Collectors.toSet());
 
-        setOrGenerateDefaultSpawn(roomProvider, allRoomSpawns);
+        setOrGenerateDefaultSpawn(roomGraph, allRoomSpawns);
         loadPlayerSpawns(allRoomSpawns);
     }
 
@@ -58,7 +58,7 @@ public class GraphSpawnManager implements IRoomSpawnManager {
         });
     }
 
-    private void setOrGenerateDefaultSpawn(CompactRoomProvider roomProvider, Set<GraphEdgeLookupResult<RoomSpawnEdge, RoomRegistrationNode, RoomSpawnNode>> allRoomSpawns) {
+    private void setOrGenerateDefaultSpawn(MemoryGraph roomGraph, Set<GraphEdgeLookupResult<RoomSpawnEdge, RoomRegistrationNode, RoomSpawnNode>> allRoomSpawns) {
         final var graphDefaultSpawn = allRoomSpawns.stream()
                 .filter(s -> s.edgeValue().player().equals(Util.NIL_UUID))
                 .findFirst();
@@ -66,14 +66,12 @@ public class GraphSpawnManager implements IRoomSpawnManager {
         graphDefaultSpawn.ifPresentOrElse(ds -> this.defaultSpawn = ds.target(), () -> {
             final var newDefCenter = RoomUtil.calculateRoomDefaultSpawn(roomRegNode);
             this.defaultSpawn = new RoomSpawnNode(newDefCenter, Vec2.ZERO);
-            roomProvider.getGraph().putEdgeValue(roomRegNode, defaultSpawn, new RoomSpawnEdge(Util.NIL_UUID));
+            roomGraph.putEdgeValue(roomRegNode, defaultSpawn, new RoomSpawnEdge(Util.NIL_UUID));
         });
     }
 
     @Override
     public void resetPlayerSpawn(UUID player) {
-        final var graph = roomProvider.getGraph();
-
         // If we have a reference
         if (!playerSpawns.containsKey(player)) {
             createPlayerSpawn(player);
@@ -85,10 +83,9 @@ public class GraphSpawnManager implements IRoomSpawnManager {
     }
 
     private RoomSpawnNode createPlayerSpawn(UUID player) {
-        final var graph = roomProvider.getGraph();
         final var newSpawnNode = new RoomSpawnNode(defaultSpawn.position(), Vec2.ZERO);
         playerSpawns.put(player, newSpawnNode);
-        graph.putEdgeValue(roomRegNode, newSpawnNode, new RoomSpawnEdge(player));
+        roomProvider.putEdgeValue(roomRegNode, newSpawnNode, new RoomSpawnEdge(player));
         return newSpawnNode;
     }
 
