@@ -5,7 +5,7 @@ import net.fabricmc.loom.task.RemapSourcesJarTask
 
 val versionMain: String = System.getenv("CM_VERSION") ?: "0.0.0"
 val mcVersion = property("minecraft_version") as String
-val parchmentVersion = property("parchment_version") as String
+// val parchmentVersion = property("parchment_version") as String
 val feather_version = property("feather_version") as String
 
 val targets: List<String> = (rootProject.property("enabled_platforms") as String).split(",")
@@ -78,8 +78,7 @@ val loom = project.extensions.getByName<net.fabricmc.loom.api.LoomGradleExtensio
 val cmModules = listOf(
         project(":core-api"),
         project(":room-api"),
-        project(":room-upgrade-api"),
-        project(":tunnel-api")
+        project(":room-upgrade-api")
 )
 
 dependencies {
@@ -88,7 +87,7 @@ dependencies {
     // The following line declares the mojmap mappings, you may use other mappings as well
     this.add("mappings", loom.layered {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${mcVersion}:${parchmentVersion}@zip")
+        // parchment("org.parchmentmc.data:parchment-${mcVersion}:${parchmentVersion}@zip")
     })
 
     cmModules.forEach {

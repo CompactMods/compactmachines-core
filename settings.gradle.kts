@@ -17,8 +17,8 @@ pluginManagement {
             }
         }
 
-        maven("https://maven.minecraftforge.net") {
-            name = "Forge"
+        maven("https://maven.neoforged.net/releases/") {
+            name = "NeoForged"
         }
 
         maven("https://maven.fabricmc.net") {
