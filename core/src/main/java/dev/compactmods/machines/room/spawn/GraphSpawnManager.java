@@ -3,17 +3,18 @@ package dev.compactmods.machines.room.spawn;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawn;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawns;
-import dev.compactmods.machines.graph.edge.GraphEdgeLookupResult;
+import dev.compactmods.feather.MemoryGraph;
+import dev.compactmods.feather.edge.GraphEdge;
 import dev.compactmods.machines.room.RoomUtil;
-import dev.compactmods.machines.room.graph.MemoryGraph;
+import dev.compactmods.machines.room.graph.GraphNodes;
 import dev.compactmods.machines.room.graph.edge.RoomSpawnEdge;
-import dev.compactmods.machines.room.graph.GraphFunctions;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import dev.compactmods.machines.room.graph.node.RoomSpawnNode;
 import net.minecraft.Util;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class GraphSpawnManager implements IRoomSpawnManager {
         this.roomProvider = roomGraph;
         this.playerSpawns = new HashMap<>();
 
-        this.roomRegNode = roomGraph.nodes(GraphFunctions.ALL_REGISTRATIONS)
+        this.roomRegNode = roomGraph.nodes(RoomRegistrationNode.class)
                 .filter(node -> node.code().equals(roomCode))
                 .findFirst()
                 .orElseThrow();
@@ -42,31 +43,35 @@ public class GraphSpawnManager implements IRoomSpawnManager {
         //         | RoomSpawnEdge (player UUID)
         //         v
         //  [RoomSpawnNode]
-        final var allRoomSpawns = roomGraph.edges(GraphFunctions.SPAWNS, roomRegNode)
+        final var allRoomSpawns = roomGraph.outboundEdges(GraphNodes.SPAWNS, roomRegNode)
+                .filter(RoomSpawnEdge.class::isInstance)
+                .map(RoomSpawnEdge.class::cast)
                 .collect(Collectors.toSet());
 
         setOrGenerateDefaultSpawn(roomGraph, allRoomSpawns);
         loadPlayerSpawns(allRoomSpawns);
     }
 
-    private void loadPlayerSpawns(Set<GraphEdgeLookupResult<RoomSpawnEdge, RoomRegistrationNode, RoomSpawnNode>> allRoomSpawns) {
+    private void loadPlayerSpawns(Set<RoomSpawnEdge> allRoomSpawns) {
         allRoomSpawns.forEach(res -> {
-            final var playerId = res.edgeValue().player();
+            final var playerId = res.value().player();
             final var spawn = res.target();
             if (!playerId.equals(Util.NIL_UUID))
-                playerSpawns.putIfAbsent(playerId, spawn);
+                playerSpawns.putIfAbsent(playerId, spawn.get());
         });
     }
 
-    private void setOrGenerateDefaultSpawn(MemoryGraph roomGraph, Set<GraphEdgeLookupResult<RoomSpawnEdge, RoomRegistrationNode, RoomSpawnNode>> allRoomSpawns) {
+    private void setOrGenerateDefaultSpawn(MemoryGraph roomGraph, Set<RoomSpawnEdge> allRoomSpawns) {
         final var graphDefaultSpawn = allRoomSpawns.stream()
-                .filter(s -> s.edgeValue().player().equals(Util.NIL_UUID))
+                .filter(s -> s.value().player().equals(Util.NIL_UUID))
                 .findFirst();
 
-        graphDefaultSpawn.ifPresentOrElse(ds -> this.defaultSpawn = ds.target(), () -> {
+        graphDefaultSpawn.ifPresentOrElse(ds -> this.defaultSpawn = ds.target().get(), () -> {
             final var newDefCenter = RoomUtil.calculateRoomDefaultSpawn(roomRegNode);
-            this.defaultSpawn = new RoomSpawnNode(newDefCenter, Vec2.ZERO);
-            roomGraph.putEdgeValue(roomRegNode, defaultSpawn, new RoomSpawnEdge(Util.NIL_UUID));
+            this.defaultSpawn = new RoomSpawnNode(UUID.randomUUID(), new RoomSpawn(newDefCenter, Vec2.ZERO));
+
+            final var newSpawnEdge = new RoomSpawnEdge(new WeakReference<>(roomRegNode), new WeakReference<>(defaultSpawn), new RoomSpawnEdge.EdgeData(Util.NIL_UUID));
+            roomGraph.connectNodes(roomRegNode, defaultSpawn, newSpawnEdge);
         });
     }
 
@@ -77,37 +82,37 @@ public class GraphSpawnManager implements IRoomSpawnManager {
             createPlayerSpawn(player);
         } else {
             final var existing = playerSpawns.get(player);
-            existing.position = defaultSpawn.position();
-            existing.rotation = defaultSpawn.rotation();
+            existing.setData(defaultSpawn.data());
         }
     }
 
     private RoomSpawnNode createPlayerSpawn(UUID player) {
-        final var newSpawnNode = new RoomSpawnNode(defaultSpawn.position(), Vec2.ZERO);
+        final var newSpawnNode = new RoomSpawnNode(UUID.randomUUID(), defaultSpawn.data());
         playerSpawns.put(player, newSpawnNode);
-        roomProvider.putEdgeValue(roomRegNode, newSpawnNode, new RoomSpawnEdge(player));
+        roomProvider.connectNodes(roomRegNode, newSpawnNode, new RoomSpawnEdge(new WeakReference<>(roomRegNode),
+                new WeakReference<>(newSpawnNode),
+                new RoomSpawnEdge.EdgeData(player)));
+
         return newSpawnNode;
     }
 
     @Override
     public void setDefaultSpawn(Vec3 position, Vec2 rotation) {
-        defaultSpawn.position = position;
-        defaultSpawn.rotation = rotation;
+        defaultSpawn.setData(new RoomSpawn(position, rotation));
     }
 
     @Override
     public IRoomSpawns spawns() {
-        final var ds = new RoomSpawn(defaultSpawn.position, defaultSpawn.rotation);
+        final var ds = new RoomSpawn(defaultSpawn.data());
         final var ps = new HashMap<UUID, RoomSpawn>();
-        playerSpawns.forEach((id, sn) -> ps.putIfAbsent(id, new RoomSpawn(sn.position, sn.rotation)));
+        playerSpawns.forEach((id, sn) -> ps.putIfAbsent(id, sn.data()));
         return new RoomSpawns(ds, ps);
     }
 
     @Override
     public void setPlayerSpawn(UUID player, Vec3 location, Vec2 rotation) {
         final var playerNode = playerSpawns.computeIfAbsent(player, this::createPlayerSpawn);
-        playerNode.position = location;
-        playerNode.rotation = rotation;
+        playerNode.setData(new RoomSpawn(location, rotation));
     }
 
     private record RoomSpawns(RoomSpawn defaultSpawn, Map<UUID, RoomSpawn> playerSpawnsSnapshot) implements IRoomSpawns {

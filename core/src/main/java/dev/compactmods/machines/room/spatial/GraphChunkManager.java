@@ -4,14 +4,17 @@ import dev.compactmods.compactmachines.api.room.exceptions.NonexistentRoomExcept
 import dev.compactmods.compactmachines.api.room.registration.IRoomRegistration;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
-import dev.compactmods.machines.room.graph.MemoryGraph;
-import dev.compactmods.machines.room.graph.GraphFunctions;
+import dev.compactmods.feather.MemoryGraph;
+import dev.compactmods.feather.edge.GraphEdge;
+import dev.compactmods.machines.room.graph.GraphNodes;
 import dev.compactmods.machines.room.graph.node.RoomChunkNode;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import net.minecraft.world.level.ChunkPos;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,7 +35,7 @@ public class GraphChunkManager implements IRoomChunkManager {
         if (!chunks.containsKey(chunk)) return Optional.empty();
         final var chunkNode = chunks.get(chunk);
 
-        return graph.adjacentNodes(GraphFunctions.LOOKUP_ROOM_REGISTRATION, chunkNode)
+        return graph.adjNodeStream(GraphNodes.LOOKUP_ROOM_REGISTRATION, chunkNode)
                 .map(IRoomRegistration.class::cast)
                 .findFirst();
     }
@@ -43,7 +46,11 @@ public class GraphChunkManager implements IRoomChunkManager {
         if(regNode == null)
             throw new NonexistentRoomException(room);
 
-        final var chunks = graph.stream(GraphFunctions.ROOM_CHUNKS, regNode)
+        final var chunks = graph.outboundEdges(GraphNodes.ROOM_CHUNKS, regNode)
+                .map(GraphEdge::target)
+                .map(WeakReference::get)
+                .filter(Objects::nonNull)
+                .map(c -> c.data().chunk())
                 .collect(Collectors.toSet());
 
         return new RoomChunks(chunks);

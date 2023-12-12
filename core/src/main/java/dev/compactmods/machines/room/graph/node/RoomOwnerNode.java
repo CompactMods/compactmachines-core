@@ -2,24 +2,16 @@ package dev.compactmods.machines.room.graph.node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.compactmods.machines.api.core.Constants;
-import dev.compactmods.machines.graph.node.IGraphNode;
+import dev.compactmods.feather.node.Node;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public record RoomOwnerNode(UUID owner) implements IGraphNode<RoomOwnerNode> {
+public record RoomOwnerNode(UUID id, Data data) implements Node<RoomOwnerNode.Data> {
 
-    private static final ResourceLocation TYPE = new ResourceLocation(Constants.MOD_ID, "room");
-
-    public static final Codec<RoomOwnerNode> CODEC = RecordCodecBuilder.create((i) -> i.group(
-            UUIDUtil.CODEC.fieldOf("owner").forGetter(RoomOwnerNode::owner)
-    ).apply(i, RoomOwnerNode::new));
-
-    @Override
-    public @NotNull Codec<RoomOwnerNode> codec() {
-        return CODEC;
+    public record Data(UUID owner) {
+        public static final Codec<Data> CODEC = RecordCodecBuilder.create((i) -> i.group(
+                UUIDUtil.CODEC.fieldOf("owner").forGetter(Data::owner)
+        ).apply(i, Data::new));
     }
 }

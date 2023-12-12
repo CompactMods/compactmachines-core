@@ -1,31 +1,11 @@
 package dev.compactmods.machines.machine.graph.edge;
 
-import com.mojang.serialization.Codec;
-import dev.compactmods.machines.graph.edge.IGraphEdge;
-import org.jetbrains.annotations.NotNull;
+import dev.compactmods.feather.edge.GraphEdge;
+import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
+import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
 
-public record MachineRoomEdge() implements IGraphEdge<MachineRoomEdge> {
+import java.lang.ref.WeakReference;
 
-    public static final Codec<MachineRoomEdge> CODEC = Codec.unit(MachineRoomEdge::new);
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj == this || obj != null && obj.getClass() == this.getClass();
-    }
-
-    @Override
-    public int hashCode() {
-        return 1;
-    }
-
-    @Override
-    public String toString() {
-        return "MachineRoomEdge[]";
-    }
-
-    @NotNull
-    @Override
-    public Codec<MachineRoomEdge> codec() {
-        return CODEC;
-    }
+public record MachineRoomEdge(WeakReference<CompactMachineNode> source, WeakReference<RoomReferenceNode> target)
+        implements GraphEdge<CompactMachineNode, RoomReferenceNode> {
 }

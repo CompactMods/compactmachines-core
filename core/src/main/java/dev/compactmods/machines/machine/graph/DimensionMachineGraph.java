@@ -3,14 +3,15 @@ package dev.compactmods.machines.machine.graph;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.compactmods.feather.MemoryGraph;
+import dev.compactmods.feather.edge.GraphEdge;
+import dev.compactmods.feather.node.GraphAdjacentNodeStream;
+import dev.compactmods.feather.traversal.GraphTraversalHelper;
 import dev.compactmods.machines.LoggingUtil;
-import dev.compactmods.machines.graph.GraphAdjacentNodeStream;
 import dev.compactmods.machines.machine.graph.edge.MachineRoomEdge;
 import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
-import dev.compactmods.machines.room.graph.GraphFunctions;
-import dev.compactmods.machines.room.graph.MemoryGraph;
+import dev.compactmods.machines.room.graph.GraphNodes;
 import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
-import dev.compactmods.machines.graph.GraphTraversalHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -21,13 +22,16 @@ import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -127,7 +131,8 @@ public class DimensionMachineGraph extends SavedData {
         var machineNode = machines.get(machine);
         var roomNode = rooms.get(room);
 
-        graph.putEdgeValue(machineNode, roomNode, new MachineRoomEdge());
+        var edge = new MachineRoomEdge(new WeakReference<>(machineNode), new WeakReference<>(roomNode));
+        graph.connectNodes(machineNode, roomNode, edge);
 
         this.setDirty();
     }
@@ -148,8 +153,8 @@ public class DimensionMachineGraph extends SavedData {
             return Collections.emptySet();
 
         var roomNode = this.rooms.get(room);
-        return graph.adjacentNodes(FIND_MACHINE_NODE, roomNode)
-                .map(CompactMachineNode::position)
+        return graph.adjNodeStream(FIND_MACHINE_NODE, roomNode)
+                .map(mn -> mn.data().position())
                 .collect(Collectors.toSet());
     }
 
@@ -158,7 +163,12 @@ public class DimensionMachineGraph extends SavedData {
             return Optional.empty();
 
         var machineNode = this.machines.get(machinePos);
-        return graph.scalar(GraphFunctions.MACHINE_TO_ROOM_CODE, machineNode);
+        return graph.outboundEdges(machineNode, RoomReferenceNode.class)
+                .map(GraphEdge::target)
+                .map(WeakReference::get)
+                .filter(Objects::nonNull)
+                .map(RoomReferenceNode::code)
+                .findFirst();
     }
 
     public void unregisterRoom(String room) {
@@ -184,7 +194,7 @@ public class DimensionMachineGraph extends SavedData {
             return Optional.empty();
 
         final var machineNode = machines.get(machine);
-        final var prevConnectedRoom = graph.scalar(GraphFunctions.MACHINE_TO_ROOM_CODE, machineNode);
+        final var prevConnectedRoom = connectedRoom(machine);
 
         graph.removeNode(machineNode);
         machines.remove(machine);

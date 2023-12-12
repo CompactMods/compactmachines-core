@@ -49,6 +49,6 @@ public class NewRoomBuilder {
     }
 
     RoomRegistrationNode build() {
-        return new RoomRegistrationNode(code, color, dimensions, center.add(centerOffset));
+        return new RoomRegistrationNode(UUID.randomUUID(), new RoomRegistrationNode.Data(code, color, dimensions, center.add(centerOffset)));
     }
 }

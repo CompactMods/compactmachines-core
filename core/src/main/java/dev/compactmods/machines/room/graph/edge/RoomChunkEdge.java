@@ -1,15 +1,16 @@
 package dev.compactmods.machines.room.graph.edge;
 
-import com.mojang.serialization.Codec;
-import dev.compactmods.machines.graph.edge.IGraphEdge;
-import org.jetbrains.annotations.NotNull;
+import dev.compactmods.feather.edge.GraphEdge;
+import dev.compactmods.machines.room.graph.node.RoomChunkNode;
+import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
+import net.minecraft.world.level.ChunkPos;
 
-public record RoomChunkEdge() implements IGraphEdge<RoomChunkEdge> {
+import java.lang.ref.WeakReference;
 
-    public static final Codec<RoomChunkEdge> CODEC = Codec.unit(new RoomChunkEdge());
+public record RoomChunkEdge(WeakReference<RoomReferenceNode> source, WeakReference<RoomChunkNode> target)
+        implements GraphEdge<RoomReferenceNode, RoomChunkNode> {
 
-    @Override
-    public @NotNull Codec<RoomChunkEdge> codec() {
-        return CODEC;
+    public RoomChunkEdge(RoomReferenceNode source, RoomChunkNode target) {
+        this(new WeakReference<>(source), new WeakReference<>(target));
     }
 }

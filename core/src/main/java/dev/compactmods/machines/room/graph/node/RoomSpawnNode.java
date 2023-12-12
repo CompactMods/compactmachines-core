@@ -1,62 +1,32 @@
 package dev.compactmods.machines.room.graph.node;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.compactmods.machines.codec.CodecExtensions;
-import dev.compactmods.machines.graph.node.IGraphNode;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
+import dev.compactmods.feather.node.Node;
+import dev.compactmods.machines.room.spawn.RoomSpawn;
 
-import java.util.Objects;
+import java.util.UUID;
 
-public final class RoomSpawnNode implements IGraphNode<RoomSpawnNode> {
+public final class RoomSpawnNode implements Node.Mutable<RoomSpawn> {
 
-    public static final Codec<RoomSpawnNode> CODEC = RecordCodecBuilder.create(i -> i.group(
-            Vec3.CODEC.fieldOf("position").forGetter(RoomSpawnNode::position),
-            CodecExtensions.VEC2.fieldOf("rotation").forGetter(RoomSpawnNode::rotation)
-    ).apply(i, RoomSpawnNode::new));
+    private final UUID id;
+    private RoomSpawn data;
 
-    public Vec3 position;
-    public Vec2 rotation;
-
-    public RoomSpawnNode(Vec3 position, Vec2 rotation) {
-        this.position = position;
-        this.rotation = rotation;
+    public RoomSpawnNode(UUID id, RoomSpawn initialSpawn) {
+        this.id = id;
+        this.data = initialSpawn;
     }
 
     @Override
-    public @NotNull Codec<RoomSpawnNode> codec() {
-        return CODEC;
-    }
-
-    public Vec3 position() {
-        return position;
-    }
-
-    public Vec2 rotation() {
-        return rotation;
+    public void setData(RoomSpawn spawnData) {
+        this.data = spawnData;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (RoomSpawnNode) obj;
-        return Objects.equals(this.position, that.position) &&
-                Objects.equals(this.rotation, that.rotation);
+    public UUID id() {
+        return id;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(position, rotation);
+    public RoomSpawn data() {
+        return data;
     }
-
-    @Override
-    public String toString() {
-        return "RoomSpawnNode[" +
-                "position=" + position + ", " +
-                "rotation=" + rotation + ']';
-    }
-
 }

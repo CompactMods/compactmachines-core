@@ -1,14 +1,12 @@
 package dev.compactmods.machines.room.graph.edge;
 
-import com.mojang.serialization.Codec;
-import dev.compactmods.machines.graph.edge.IGraphEdge;
-import org.jetbrains.annotations.NotNull;
+import dev.compactmods.feather.edge.GraphEdge;
+import dev.compactmods.machines.room.graph.node.RoomOwnerNode;
+import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 
-public record RoomOwnerEdge() implements IGraphEdge<RoomOwnerEdge> {
-    public static final Codec<RoomOwnerEdge> CODEC = Codec.unit(new RoomOwnerEdge());
+import java.lang.ref.WeakReference;
 
-    @Override
-    public @NotNull Codec<RoomOwnerEdge> codec() {
-        return CODEC;
-    }
+public record RoomOwnerEdge(WeakReference<RoomRegistrationNode> source, WeakReference<RoomOwnerNode> target)
+        implements GraphEdge<RoomRegistrationNode, RoomOwnerNode> {
+
 }
