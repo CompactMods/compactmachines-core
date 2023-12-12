@@ -10,13 +10,13 @@ import dev.compactmods.feather.traversal.GraphTraversalHelper;
 import dev.compactmods.machines.LoggingUtil;
 import dev.compactmods.machines.machine.graph.edge.MachineRoomEdge;
 import dev.compactmods.machines.machine.graph.node.CompactMachineNode;
-import dev.compactmods.machines.room.graph.GraphNodes;
 import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -83,8 +82,11 @@ public class DimensionMachineGraph extends SavedData {
 
     public static DimensionMachineGraph forDimension(ServerLevel dimension) {
         final var dimStore = dimension.getDataStorage();
-        return dimStore.computeIfAbsent(tag -> new DimensionMachineGraph(dimension.dimension(), tag),
-                () -> new DimensionMachineGraph(dimension.dimension()), DATA_KEY);
+        final var fact = new Factory<>(() -> new DimensionMachineGraph(dimension.dimension()),
+                tag -> new DimensionMachineGraph(dimension.dimension(), tag),
+                DataFixTypes.LEVEL);
+
+        return dimStore.computeIfAbsent(fact, DATA_KEY);
     }
 
     private List<CompactMachineConnectionInfo> buildConnections() {

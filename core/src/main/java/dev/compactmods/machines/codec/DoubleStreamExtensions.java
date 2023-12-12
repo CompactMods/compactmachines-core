@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.PrimitiveCodec;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 public class DoubleStreamExtensions {
@@ -32,7 +31,7 @@ public class DoubleStreamExtensions {
         double[] limited = stream.limit(limit + 1).toArray();
         if (limited.length != limit) {
             String s = "Input is not a list of " + limit + " doubles";
-            return limited.length >= limit ? DataResult.error(s, Arrays.copyOf(limited, limit)) : DataResult.error(s);
+            return limited.length >= limit ? DataResult.error(() -> s, Arrays.copyOf(limited, limit)) : DataResult.error(() -> s);
         } else {
             return DataResult.success(limited);
         }
@@ -40,11 +39,11 @@ public class DoubleStreamExtensions {
 
     public static <T> DataResult<DoubleStream> getDoubleStream(final DynamicOps<T> ops, final T input) {
         return ops.getStream(input).flatMap(stream -> {
-            final List<T> list = stream.collect(Collectors.toList());
+            final List<T> list = stream.toList();
             if (list.stream().allMatch(element -> ops.getNumberValue(element).result().isPresent())) {
                 return DataResult.success(list.stream().mapToDouble(element -> ops.getNumberValue(element).result().get().doubleValue()));
             }
-            return DataResult.error("Some elements are not doubles: " + input);
+            return DataResult.error(() -> "Some elements are not doubles: " + input);
         });
     }
 }

@@ -1,5 +1,6 @@
 package dev.compactmods.machines.client.level;
 
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
@@ -29,7 +30,7 @@ public class EmptyLevelEntityGetter implements LevelEntityGetter<Entity> {
     }
 
     @Override
-    public <U extends Entity> void get(EntityTypeTest<Entity, U> p_156935_, Consumer<U> p_156936_) {
+    public <U extends Entity> void get(EntityTypeTest<Entity, U> entityTypeTest, AbortableIterationConsumer<U> abortableIterationConsumer) {
 
     }
 
@@ -39,7 +40,7 @@ public class EmptyLevelEntityGetter implements LevelEntityGetter<Entity> {
     }
 
     @Override
-    public <U extends Entity> void get(EntityTypeTest<Entity, U> p_156932_, AABB p_156933_, Consumer<U> p_156934_) {
+    public <U extends Entity> void get(EntityTypeTest<Entity, U> entityTypeTest, AABB aABB, AbortableIterationConsumer<U> abortableIterationConsumer) {
 
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 public class RoomUtil {
 
     public static Vec3 calculateRoomDefaultSpawn(AABB roomInternal) {
-        var newFloorCenter = new BlockPos(roomInternal.getCenter()).mutable();
+        var newFloorCenter = BlockPos.containing(roomInternal.getCenter()).mutable();
         newFloorCenter.setY((int) (roomInternal.minY + 1));
         return Vec3.atBottomCenterOf(newFloorCenter);
     }

@@ -1,7 +1,6 @@
 package dev.compactmods.machines.util;
 
 import com.mojang.authlib.GameProfile;
-import dev.compactmods.machines.advancement.AdvancementTriggers;
 import dev.compactmods.machines.api.core.Messages;
 import dev.compactmods.machines.i18n.TranslationUtil;
 import net.minecraft.server.MinecraftServer;
@@ -19,9 +18,8 @@ public abstract class PlayerUtil {
     public static Optional<GameProfile> getProfileByUUID(MinecraftServer server, UUID uuid) {
         final var player = server.getPlayerList().getPlayer(uuid);
         if (player == null) {
-            var profile = new GameProfile(uuid, "Unknown");
-            var p2 = server.getSessionService().fillProfileProperties(profile, false);
-            return Optional.ofNullable(p2);
+            var p2 = server.getSessionService().fetchProfile(uuid, false);
+            return p2 == null ? Optional.empty() : Optional.ofNullable(p2.profile());
         }
 
         GameProfile profile = player.getGameProfile();
@@ -35,15 +33,6 @@ public abstract class PlayerUtil {
 
         GameProfile profile = player.getGameProfile();
         return Optional.of(profile);
-    }
-
-    public static void howDidYouGetThere(@NotNull ServerPlayer serverPlayer) {
-        AdvancementTriggers.HOW_DID_YOU_GET_HERE.trigger(serverPlayer);
-
-        serverPlayer.displayClientMessage(
-                TranslationUtil.message(Messages.HOW_DID_YOU_GET_HERE),
-                true
-        );
     }
 
     public static Vec2 getLookDirection(Player player) {

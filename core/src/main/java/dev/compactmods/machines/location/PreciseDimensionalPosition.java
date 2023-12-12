@@ -6,7 +6,7 @@ import dev.compactmods.machines.api.location.IDimensionalPosition;
 import dev.compactmods.machines.codec.CodecExtensions;
 import dev.compactmods.machines.util.MathUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -22,13 +22,13 @@ public record PreciseDimensionalPosition(ResourceKey<Level> dimension, Vec3 posi
         implements IDimensionalPosition {
 
     public static final Codec<PreciseDimensionalPosition> CODEC = RecordCodecBuilder.create(i -> i.group(
-            ResourceKey.codec(Registry.DIMENSION_REGISTRY).fieldOf("dim").forGetter(PreciseDimensionalPosition::dimension),
+            ResourceKey.codec(Registries.DIMENSION).fieldOf("dim").forGetter(PreciseDimensionalPosition::dimension),
             CodecExtensions.VECTOR3D.fieldOf("pos").forGetter(PreciseDimensionalPosition::position),
             CodecExtensions.VEC2.optionalFieldOf("rot", Vec2.ZERO).forGetter(x -> x.rotation)
     ).apply(i, PreciseDimensionalPosition::new));
 
     public static PreciseDimensionalPosition fromPlayer(Player player) {
-        return new PreciseDimensionalPosition(player.level.dimension(), player.position(), new Vec2(player.xRotO, player.yRotO));
+        return new PreciseDimensionalPosition(player.level().dimension(), player.position(), new Vec2(player.xRotO, player.yRotO));
     }
 
     @Override
@@ -38,7 +38,7 @@ public record PreciseDimensionalPosition(ResourceKey<Level> dimension, Vec3 posi
 
     @Override
     public boolean isLoaded(MinecraftServer serv) {
-        return level(serv).isLoaded(new BlockPos(position));
+        return level(serv).isLoaded(BlockPos.containing(position));
     }
 
     @Override

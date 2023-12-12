@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 public class CompactStructureGenerator {
 
     public static AABB getWallBounds(Vec3i size, Vec3 roomCenter, Direction wall) {
-        BlockPos cubeFloor = new BlockPos(roomCenter).below(Math.floorDiv(size.getY(), 2));
+        BlockPos cubeFloor = BlockPos.containing(roomCenter).below(Math.floorDiv(size.getY(), 2));
         BlockPos start;
 
         switch (wall) {
@@ -24,7 +24,7 @@ public class CompactStructureGenerator {
                 int offsetNorthSouth = (int) Math.ceil(size.getZ() / 2f);
                 start = cubeFloor.relative(wall,  offsetNorthSouth);
 
-                return new AABB(start, start)
+                return AABB.encapsulatingFullBlocks(start, start)
                         .expandTowards(0, size.getY(), 0)
                         .inflate(Math.ceil(size.getX() / 2f), 0, 0);
             }
@@ -33,14 +33,14 @@ public class CompactStructureGenerator {
                 final var offsetWestEast = (int) Math.ceil(size.getX() / 2f);
                 start = cubeFloor.relative(wall,  offsetWestEast);
 
-                return new AABB(start, start)
+                return AABB.encapsulatingFullBlocks(start, start)
                         .expandTowards(0, size.getY(), 0)
                         .inflate(0, 0, Math.ceil(size.getZ() / 2f));
             }
 
             case UP, DOWN -> {
                 start = wall == Direction.DOWN ? cubeFloor : cubeFloor.relative(wall, size.getY());
-                var aabb = new AABB(start, start)
+                var aabb = AABB.encapsulatingFullBlocks(start, start)
                         .inflate(Math.ceil(size.getX() / 2f), 0, Math.ceil(size.getZ() / 2f));
 
                 if(wall == Direction.UP)
@@ -107,7 +107,7 @@ public class CompactStructureGenerator {
                 Math.floor(dimensions.getZ() / 2f)
         );
 
-        return new BlockPos(center.subtract(offset));
+        return BlockPos.containing(center.subtract(offset));
     }
 
     public static void fillWithTemplate(ServerLevel level, ResourceLocation template, Vec3i dimensions, Vec3 center) {
