@@ -1,8 +1,0 @@
-package dev.compactmods.machines.tunnel.graph.nbt;
-
-import dev.compactmods.machines.graph.edge.IGraphEdge;
-
-import java.util.UUID;
-
-public record TunnelGraphEdgeDeserializationResult<E extends IGraphEdge<E>>(UUID from, UUID to, E data) {
-}

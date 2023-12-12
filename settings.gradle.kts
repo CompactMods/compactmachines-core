@@ -32,6 +32,5 @@ rootProject.name = "Compact Machines Core"
 include("core-api")
 include("core")
 // include("common-compat")
-include("tunnel-api")
 include("room-api")
 include("room-upgrade-api")
