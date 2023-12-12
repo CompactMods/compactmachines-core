@@ -6,6 +6,7 @@ import net.fabricmc.loom.task.RemapSourcesJarTask
 val versionMain: String = System.getenv("CM_VERSION") ?: "0.0.0"
 val mcVersion = property("minecraft_version") as String
 val parchmentVersion = property("parchment_version") as String
+val feather_version = property("feather_version") as String
 
 val targets: List<String> = (rootProject.property("enabled_platforms") as String).split(",")
 
@@ -62,6 +63,14 @@ repositories {
     maven("https://maven.parchmentmc.org") {
         name = "ParchmentMC"
     }
+
+    maven("https://maven.pkg.github.com/compactmods/feather") {
+        name = "Feather"
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.token") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 val loom = project.extensions.getByName<net.fabricmc.loom.api.LoomGradleExtensionAPI>("loom")
@@ -88,6 +97,7 @@ dependencies {
     }
 
     compileOnly("com.aventrix.jnanoid", "jnanoid", "2.0.0")
+    implementation("dev.compactmods", "feather", feather_version)
 }
 
 tasks.withType<JavaCompile> {
