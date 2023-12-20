@@ -1,5 +1,6 @@
-package dev.compactmods.machines.room.graph;
+package dev.compactmods.machines.room;
 
+import dev.compactmods.compactmachines.api.room.registration.IRoomBuilder;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -7,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
-public class NewRoomBuilder {
+public class NewRoomBuilder implements IRoomBuilder {
     private final String code;
     private int color = 0;
     private Vec3i dimensions = Vec3i.ZERO;
@@ -15,11 +16,11 @@ public class NewRoomBuilder {
     private Vec3 centerOffset = Vec3.ZERO;
     UUID owner;
 
-    NewRoomBuilder(String newRoomCode) {
-        this.code = newRoomCode;
+    NewRoomBuilder() {
+        this.code = RoomCodeGenerator.generateRoomId();
     }
 
-    public NewRoomBuilder setDimensions(Vec3i dimensions) {
+    public NewRoomBuilder dimensions(Vec3i dimensions) {
         this.dimensions = dimensions;
         return this;
     }
@@ -29,12 +30,12 @@ public class NewRoomBuilder {
         return this;
     }
 
-    public NewRoomBuilder setOwner(UUID owner) {
+    public NewRoomBuilder owner(UUID owner) {
         this.owner = owner;
         return this;
     }
 
-    public NewRoomBuilder setColor(int color) {
+    public NewRoomBuilder defaultMachineColor(int color) {
         this.color = color;
         return this;
     }
@@ -48,7 +49,7 @@ public class NewRoomBuilder {
         return this;
     }
 
-    RoomRegistrationNode build() {
-        return new RoomRegistrationNode(UUID.randomUUID(), new RoomRegistrationNode.Data(code, color, dimensions, center.add(centerOffset)));
+    RoomRegistrationNode.Data build() {
+        return new RoomRegistrationNode.Data(code, color, dimensions, center.add(centerOffset));
     }
 }

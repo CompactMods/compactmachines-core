@@ -3,7 +3,7 @@ import java.util.Date
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
 
-val versionMain: String = System.getenv("CM_VERSION") ?: "0.0.0"
+val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 val mcVersion = property("minecraft_version") as String
 // val parchmentVersion = property("parchment_version") as String
 

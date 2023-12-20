@@ -3,10 +3,14 @@ package dev.compactmods.compactmachines.api.room;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.machines.api.core.Constants;
+import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
+
+import static dev.compactmods.machines.api.core.Constants.MOD_ID;
 
 /**
  * Template structure for creating a new Compact Machine room. These can be added and removed from the registry
@@ -17,6 +21,8 @@ import java.util.Objects;
  * @param prefillTemplate A template (structure) file reference, if specified this will fill the new room post-generation
  */
 public record RoomTemplate(Vec3i dimensions, int color, ResourceLocation prefillTemplate) {
+
+    public static final ResourceKey<Registry<RoomTemplate>> REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "room_templates"));
 
     public static final ResourceLocation NO_TEMPLATE = new ResourceLocation(Constants.MOD_ID, "empty");
     public static final RoomTemplate INVALID_TEMPLATE = new RoomTemplate(0, 0);

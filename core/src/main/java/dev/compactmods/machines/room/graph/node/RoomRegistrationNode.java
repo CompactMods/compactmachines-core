@@ -2,20 +2,18 @@ package dev.compactmods.machines.room.graph.node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.compactmods.compactmachines.api.room.registration.IRoomRegistration;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomArea;
 import dev.compactmods.feather.node.Node;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 /**
  * Hosts core information about a machine room, such as how large it is and its code.
  */
-public record RoomRegistrationNode(UUID id, Data data) implements Node<RoomRegistrationNode.Data>, IRoomRegistration, IRoomArea {
+public record RoomRegistrationNode(UUID id, Data data) implements Node<RoomRegistrationNode.Data>, IRoomArea {
 
     public record Data(String code, int defaultMachineColor, Vec3i dimensions, Vec3 center) {
         public static final Codec<Data> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -26,12 +24,10 @@ public record RoomRegistrationNode(UUID id, Data data) implements Node<RoomRegis
         ).apply(i, Data::new));
     }
 
-    @Override
     public String code() {
         return data.code;
     }
 
-    @Override
     public int defaultMachineColor() {
         return data.defaultMachineColor;
     }

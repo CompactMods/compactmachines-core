@@ -4,41 +4,38 @@ import dev.compactmods.compactmachines.api.room.exceptions.NonexistentRoomExcept
 import dev.compactmods.compactmachines.api.room.owner.IRoomOwners;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
-import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManagers;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import org.jetbrains.annotations.ApiStatus;
 
-import static dev.compactmods.machines.api.core.Constants.MOD_ID;
+public class RoomApi {
 
-public class Rooms {
-
-    private static IRoomRegistrar ROOM_REGISTRY;
-    private static IRoomOwners OWNER_REGISTRY;
-    private static IRoomSpawnManagers SPAWN_MANAGERS;
-    private static IRoomChunkManager CHUNK_MANAGER;
-
-    public static final ResourceKey<Registry<RoomTemplate>> TEMPLATE_REG_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "room_templates"));
+    /**
+     * Set up when the server or single-player instance changes.
+     * NOT for API consumers to use! Use the methods provided here for safety.
+     * @since 3.0.0
+     */
+    @ApiStatus.Internal
+    public static IRoomApi INSTANCE;
 
     public static IRoomRegistrar registrar() {
-        return ROOM_REGISTRY;
+        return INSTANCE.registrar();
     }
 
     public static IRoomOwners owners() {
-        return OWNER_REGISTRY;
+        return INSTANCE.owners();
     }
 
     public static IRoomSpawnManager spawnManager(String roomCode) throws NonexistentRoomException {
-        return SPAWN_MANAGERS.get(roomCode);
+        return INSTANCE.spawnManager(roomCode);
     }
 
     public static IRoomChunkManager chunkManager() {
-        return CHUNK_MANAGER;
+        return INSTANCE.chunkManager();
     }
 
     public static Registry<RoomTemplate> getTemplates(MinecraftServer server) {
         final var regAccess = server.registryAccess();
-        return regAccess.registryOrThrow(TEMPLATE_REG_KEY);
+        return regAccess.registryOrThrow(RoomTemplate.REGISTRY_KEY);
     }
 }

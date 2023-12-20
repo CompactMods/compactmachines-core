@@ -1,7 +1,6 @@
 package dev.compactmods.machines.room.spatial;
 
 import dev.compactmods.compactmachines.api.room.exceptions.NonexistentRoomException;
-import dev.compactmods.compactmachines.api.room.registration.IRoomRegistration;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
 import dev.compactmods.feather.MemoryGraph;
@@ -31,12 +30,12 @@ public class GraphChunkManager implements IRoomChunkManager {
     }
 
     @Override
-    public Optional<IRoomRegistration> findRoomByChunk(ChunkPos chunk) {
+    public Optional<String> findRoomByChunk(ChunkPos chunk) {
         if (!chunks.containsKey(chunk)) return Optional.empty();
         final var chunkNode = chunks.get(chunk);
 
         return graph.adjNodeStream(GraphNodes.LOOKUP_ROOM_REGISTRATION, chunkNode)
-                .map(IRoomRegistration.class::cast)
+                .map(RoomRegistrationNode::code)
                 .findFirst();
     }
 

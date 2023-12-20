@@ -9,7 +9,7 @@ import static dev.compactmods.machines.api.core.Constants.MOD_ID;
 
 public interface RoomUpgrade {
 
-    ResourceKey<Registry<RoomUpgrade>> REG_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "upgrade_actions"));
+    ResourceKey<Registry<RoomUpgrade>> REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "room_upgrades"));
 
     Codec<? extends RoomUpgrade> codec();
 }
