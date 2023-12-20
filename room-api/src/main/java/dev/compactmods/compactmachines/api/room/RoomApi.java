@@ -4,6 +4,8 @@ import dev.compactmods.compactmachines.api.room.exceptions.NonexistentRoomExcept
 import dev.compactmods.compactmachines.api.room.owner.IRoomOwners;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
+import dev.compactmods.machines.api.dimension.CompactDimension;
+import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import net.minecraft.core.Registry;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.ApiStatus;
@@ -33,13 +35,18 @@ public class RoomApi {
     }
 
     /**
-     * Registers a new room instance.
+     * Registers a new room instance and generates the structure in the compact world.
+     *
+     * @param server Server to generate room on.
      * @param template
      * @param owner
      * @return
      */
-    public static RoomInstance newRoom(RoomTemplate template, UUID owner) {
-        return INSTANCE.registrar().createNew(template, owner);
+    public static RoomInstance newRoom(MinecraftServer server, RoomTemplate template, UUID owner) throws MissingDimensionException {
+        final var instance = INSTANCE.registrar().createNew(template, owner);
+        final var compactDim = CompactDimension.forServer(server);
+        CompactRoomGenerator.generateRoom(compactDim, template, instance.area().get().center());
+        return instance;
     }
 
     public static IRoomRegistrar registrar() {
