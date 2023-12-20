@@ -1,8 +1,10 @@
-package dev.compactmods.machines.util;
+package dev.compactmods.compactmachines.api.room;
 
+import dev.compactmods.machines.api.CMBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
@@ -13,7 +15,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class CompactStructureGenerator {
+public class CompactRoomGenerator {
 
     public static AABB getWallBounds(Vec3i size, Vec3 roomCenter, Direction wall) {
         BlockPos cubeFloor = BlockPos.containing(roomCenter).below(Math.floorDiv(size.getY(), 2));
@@ -56,19 +58,73 @@ public class CompactStructureGenerator {
 
     /**
      * Generates a wall or platform in a given direction.
+     * Uses the solid wall block.
      *
      * @param world
      * @param dimensions
      * @param cubeCenter
      * @param wallDirection
+     *
+     * @since 3.0.0
+     */
+    public static void generateCompactWall(LevelAccessor world, Vec3i dimensions, Vec3 cubeCenter, Direction wallDirection) {
+        final var block = BuiltInRegistries.BLOCK.get(CMBlocks.SOLID_WALL);
+        if(block != null) {
+            final var solidWall = block.defaultBlockState();
+            generateCompactWall(world, dimensions, cubeCenter, wallDirection, solidWall);
+        }
+    }
+
+    /**
+     * Generates a wall or platform in a given direction.
+     *
+     * @param world
+     * @param dimensions
+     * @param cubeCenter
+     * @param wallDirection
+     * @param block
      */
     public static void generateCompactWall(LevelAccessor world, Vec3i dimensions, Vec3 cubeCenter, Direction wallDirection, BlockState block) {
         final var wallBounds = getWallBounds(dimensions, cubeCenter, wallDirection);
-
         BlockPos.betweenClosedStream(wallBounds)
                 // .filter(world::isEmptyBlock)
                 .map(BlockPos::immutable)
-                .forEach(p -> world.setBlock(p, block, 7));
+                .forEach(p -> world.setBlock(p, block, Block.UPDATE_ALL));
+    }
+
+    public static void generateRoom(ServerLevel level, RoomTemplate template, Vec3 roomCenter) {
+        generateRoom(level, template.dimensions(), roomCenter);
+        if(!template.prefillTemplate().equals(RoomTemplate.NO_TEMPLATE)) {
+            fillWithTemplate(level, template.prefillTemplate(), template.dimensions(), roomCenter);
+        }
+    }
+
+    /**
+     * Generates a machine "internal" structure in a world via a machine size and a central point.
+     *
+     * @param world
+     * @param dimensions Internal dimensions of the room.
+     * @param roomCenter
+     */
+    public static void generateRoom(LevelAccessor world, Vec3i dimensions, Vec3 roomCenter) {
+        AABB floorBlocks = getWallBounds(dimensions, roomCenter, Direction.DOWN);
+        AABB machineInternal = floorBlocks
+                .move(1, 1, 1)
+                .contract(2, 0, 2)
+                .expandTowards(0, dimensions.getY() - 1, 0);
+
+        boolean anyAir = BlockPos.betweenClosedStream(floorBlocks).anyMatch(world::isEmptyBlock);
+
+        if (anyAir) {
+            // Generate the walls
+            for(final var dir : Direction.values())
+                generateCompactWall(world, dimensions, roomCenter, dir);
+
+            // Clear out the inside of the room
+            BlockPos.betweenClosedStream(machineInternal)
+                    .forEach(p -> world.setBlock(p, Blocks.AIR.defaultBlockState(), 7));
+
+        }
     }
 
     /**
