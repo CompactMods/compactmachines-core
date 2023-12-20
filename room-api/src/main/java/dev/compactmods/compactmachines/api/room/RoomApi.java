@@ -8,6 +8,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.Optional;
+
 public class RoomApi {
 
     /**
@@ -17,6 +19,15 @@ public class RoomApi {
      */
     @ApiStatus.Internal
     public static IRoomApi INSTANCE;
+
+    /**
+     * Fetches a room instance from the registrar.
+     * @param roomCode The room identifier.
+     * @since 3.0.0
+     */
+    public static Optional<RoomInstance> room(String roomCode) {
+        return INSTANCE.registrar().get(roomCode);
+    }
 
     public static IRoomRegistrar registrar() {
         return INSTANCE.registrar();
