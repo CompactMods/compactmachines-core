@@ -6,16 +6,20 @@ import dev.compactmods.compactmachines.api.room.RoomInstance;
 import dev.compactmods.compactmachines.api.room.registration.IRoomBuilder;
 import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.machines.api.core.Constants;
-import dev.compactmods.machines.codec.NbtListCollector;
+import dev.compactmods.machines.api.dimension.CompactDimension;
+import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
+import dev.compactmods.machines.util.MathUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,14 +31,21 @@ public class RoomRegistration extends SavedData implements IRoomRegistrar {
     public static final Logger LOGS = LogManager.getLogger();
 
     public static final String DATA_NAME = Constants.MOD_ID + "_rooms";
-    public static final String NBT_NODE_ID_KEY = "node_id";
+    public static final SavedData.Factory<RoomRegistration> FACTORY =
+            new SavedData.Factory<>(RoomRegistration::new, RoomRegistration.Serializer::load, null);
 
     private final MemoryGraph graph;
     private final Map<String, RoomRegistrationNode> registrationNodes;
 
-    public RoomRegistration() {
+    private RoomRegistration() {
         this.graph = new MemoryGraph();
         this.registrationNodes = new HashMap<>();
+    }
+
+    public static RoomRegistration forServer(MinecraftServer server) throws MissingDimensionException {
+        return CompactDimension.forServer(server)
+                .getDataStorage()
+                .computeIfAbsent(FACTORY, DATA_NAME);
     }
 
     @Override
@@ -84,6 +95,10 @@ public class RoomRegistration extends SavedData implements IRoomRegistrar {
     @Override
     public RoomInstance createNew(Consumer<IRoomBuilder> build) {
         final var builder = new NewRoomBuilder();
+
+        final var region = MathUtil.getRegionPositionByIndex(registrationNodes.size());
+        builder.setCenter(MathUtil.getCenterWithY(region, 40).above(builder.yOffset()));
+
         build.accept(builder);
         final var data = builder.build();
 
@@ -138,20 +153,23 @@ public class RoomRegistration extends SavedData implements IRoomRegistrar {
 
         public static CompoundTag serialize(RoomRegistration instance, CompoundTag tag) {
 
-            final var roomData = instance.registrationNodes.values()
-                    .stream()
-                    .map(regNode -> {
-                        CompoundTag ct = (CompoundTag) RoomRegistrationNode.Data.CODEC
-                                .encodeStart(NbtOps.INSTANCE, regNode.data())
-                                .getOrThrow(false, LOGS::error);
-
-                        ct.putUUID(NBT_NODE_ID_KEY, regNode.id());
-                        return ct;
-                    }).collect(NbtListCollector.toNbtList());
+            final var roomData = RoomRegistrationNode.CODEC.listOf()
+                    .encodeStart(NbtOps.INSTANCE, List.copyOf(instance.registrationNodes.values()))
+                    .getOrThrow(false, LOGS::error);
 
             tag.put("rooms", roomData);
-
             return tag;
+        }
+
+        public static RoomRegistration load(CompoundTag tag) {
+            RoomRegistration inst = new RoomRegistration();
+
+            RoomRegistrationNode.CODEC.listOf()
+                    .parse(NbtOps.INSTANCE, tag.getList("rooms", CompoundTag.TAG_COMPOUND))
+                    .getOrThrow(false, LOGS::error)
+                    .forEach(dn -> inst.registrationNodes.putIfAbsent(dn.code(), dn));
+
+            return inst;
         }
     }
 }

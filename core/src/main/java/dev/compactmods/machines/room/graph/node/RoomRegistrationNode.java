@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.feather.node.Node;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -14,6 +15,11 @@ import java.util.UUID;
  * Hosts core information about a machine room, such as how large it is and its code.
  */
 public record RoomRegistrationNode(UUID id, Data data) implements Node<RoomRegistrationNode.Data>, IRoomBoundaries {
+
+    public static final Codec<RoomRegistrationNode> CODEC = RecordCodecBuilder.create(i -> i.group(
+            UUIDUtil.CODEC.fieldOf("id").forGetter(RoomRegistrationNode::id),
+            Data.CODEC.fieldOf("data").forGetter(RoomRegistrationNode::data)
+    ).apply(i, RoomRegistrationNode::new));
 
     public record Data(String code, int defaultMachineColor, Vec3i dimensions, Vec3 center) {
         public static final Codec<Data> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -34,12 +40,12 @@ public record RoomRegistrationNode(UUID id, Data data) implements Node<RoomRegis
 
     @Override
     public Vec3i dimensions() {
-        return null;
+        return data.dimensions;
     }
 
     @Override
     public Vec3 center() {
-        return null;
+        return data.center;
     }
 
     @Override
