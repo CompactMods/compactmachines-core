@@ -4,8 +4,6 @@ import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawn;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawns;
 import dev.compactmods.feather.MemoryGraph;
-import dev.compactmods.feather.edge.GraphEdge;
-import dev.compactmods.machines.room.RoomUtil;
 import dev.compactmods.machines.room.graph.GraphNodes;
 import dev.compactmods.machines.room.graph.edge.RoomSpawnEdge;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
@@ -67,8 +65,7 @@ public class GraphSpawnManager implements IRoomSpawnManager {
                 .findFirst();
 
         graphDefaultSpawn.ifPresentOrElse(ds -> this.defaultSpawn = ds.target().get(), () -> {
-            final var newDefCenter = RoomUtil.calculateRoomDefaultSpawn(roomRegNode);
-            this.defaultSpawn = new RoomSpawnNode(UUID.randomUUID(), new RoomSpawn(newDefCenter, Vec2.ZERO));
+            this.defaultSpawn = new RoomSpawnNode(UUID.randomUUID(), new RoomSpawn(roomRegNode.defaultSpawn(), Vec2.ZERO));
 
             final var newSpawnEdge = new RoomSpawnEdge(new WeakReference<>(roomRegNode), new WeakReference<>(defaultSpawn), new RoomSpawnEdge.EdgeData(Util.NIL_UUID));
             roomGraph.connectNodes(roomRegNode, defaultSpawn, newSpawnEdge);

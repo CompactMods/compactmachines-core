@@ -1,8 +1,8 @@
 package dev.compactmods.compactmachines.api.room;
 
-import dev.compactmods.compactmachines.api.room.exceptions.NonexistentRoomException;
 import dev.compactmods.compactmachines.api.room.owner.IRoomOwners;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
+import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
@@ -45,7 +45,7 @@ public class RoomApi {
     public static RoomInstance newRoom(MinecraftServer server, RoomTemplate template, UUID owner) throws MissingDimensionException {
         final var instance = INSTANCE.registrar().createNew(template, owner);
         final var compactDim = CompactDimension.forServer(server);
-        CompactRoomGenerator.generateRoom(compactDim, template, instance.area().get().center());
+        CompactRoomGenerator.generateRoom(compactDim, template, instance.boundaries().center());
         return instance;
     }
 
@@ -57,12 +57,16 @@ public class RoomApi {
         return INSTANCE.owners();
     }
 
-    public static IRoomSpawnManager spawnManager(String roomCode) throws NonexistentRoomException {
+    public static IRoomSpawnManager spawnManager(String roomCode) {
         return INSTANCE.spawnManager(roomCode);
     }
 
     public static IRoomChunkManager chunkManager() {
         return INSTANCE.chunkManager();
+    }
+
+    public static IRoomChunks chunks(String roomCode) {
+        return INSTANCE.chunks(roomCode);
     }
 
     public static Registry<RoomTemplate> getTemplates(MinecraftServer server) {
