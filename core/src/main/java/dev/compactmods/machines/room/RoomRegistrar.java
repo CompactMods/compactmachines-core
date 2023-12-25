@@ -26,23 +26,23 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class RoomRegistration extends SavedData implements IRoomRegistrar {
+public class RoomRegistrar extends SavedData implements IRoomRegistrar {
 
     public static final Logger LOGS = LogManager.getLogger();
 
     public static final String DATA_NAME = Constants.MOD_ID + "_rooms";
-    public static final SavedData.Factory<RoomRegistration> FACTORY =
-            new SavedData.Factory<>(RoomRegistration::new, RoomRegistration.Serializer::load, null);
+    public static final SavedData.Factory<RoomRegistrar> FACTORY =
+            new SavedData.Factory<>(RoomRegistrar::new, RoomRegistrar.Serializer::load, null);
 
     private final MemoryGraph graph;
     private final Map<String, RoomRegistrationNode> registrationNodes;
 
-    private RoomRegistration() {
+    private RoomRegistrar() {
         this.graph = new MemoryGraph();
         this.registrationNodes = new HashMap<>();
     }
 
-    public static RoomRegistration forServer(MinecraftServer server) throws MissingDimensionException {
+    public static RoomRegistrar forServer(MinecraftServer server) throws MissingDimensionException {
         return CompactDimension.forServer(server)
                 .getDataStorage()
                 .computeIfAbsent(FACTORY, DATA_NAME);
@@ -105,6 +105,8 @@ public class RoomRegistration extends SavedData implements IRoomRegistrar {
         var node = new RoomRegistrationNode(UUID.randomUUID(), data);
         this.registrationNodes.put(data.code(), node);
         this.graph.addNode(node);
+
+        RoomApi.chunkManager().calculateChunks(data.code(), node);
         return makeRoomInstance(node);
     }
 
@@ -146,12 +148,12 @@ public class RoomRegistration extends SavedData implements IRoomRegistrar {
     public Stream<RoomInstance> allRooms() {
         return registrationNodes.values()
                 .stream()
-                .map(RoomRegistration::makeRoomInstance);
+                .map(RoomRegistrar::makeRoomInstance);
     }
 
     public static class Serializer {
 
-        public static CompoundTag serialize(RoomRegistration instance, CompoundTag tag) {
+        public static CompoundTag serialize(RoomRegistrar instance, CompoundTag tag) {
 
             final var roomData = RoomRegistrationNode.CODEC.listOf()
                     .encodeStart(NbtOps.INSTANCE, List.copyOf(instance.registrationNodes.values()))
@@ -161,8 +163,8 @@ public class RoomRegistration extends SavedData implements IRoomRegistrar {
             return tag;
         }
 
-        public static RoomRegistration load(CompoundTag tag) {
-            RoomRegistration inst = new RoomRegistration();
+        public static RoomRegistrar load(CompoundTag tag) {
+            RoomRegistrar inst = new RoomRegistrar();
 
             RoomRegistrationNode.CODEC.listOf()
                     .parse(NbtOps.INSTANCE, tag.getList("rooms", CompoundTag.TAG_COMPOUND))
