@@ -26,7 +26,7 @@ public class CompactRoomGenerator {
                 int offsetNorthSouth = (int) Math.ceil(size.getZ() / 2f);
                 start = cubeFloor.relative(wall,  offsetNorthSouth);
 
-                return AABB.encapsulatingFullBlocks(start, start)
+                return new AABB(start)
                         .expandTowards(0, size.getY(), 0)
                         .inflate(Math.ceil(size.getX() / 2f), 0, 0);
             }
@@ -35,14 +35,14 @@ public class CompactRoomGenerator {
                 final var offsetWestEast = (int) Math.ceil(size.getX() / 2f);
                 start = cubeFloor.relative(wall,  offsetWestEast);
 
-                return AABB.encapsulatingFullBlocks(start, start)
+                return new AABB(start)
                         .expandTowards(0, size.getY(), 0)
                         .inflate(0, 0, Math.ceil(size.getZ() / 2f));
             }
 
             case UP, DOWN -> {
                 start = wall == Direction.DOWN ? cubeFloor : cubeFloor.relative(wall, size.getY());
-                var aabb = AABB.encapsulatingFullBlocks(start, start)
+                var aabb = new AABB(start)
                         .inflate(Math.ceil(size.getX() / 2f), 0, Math.ceil(size.getZ() / 2f));
 
                 if(wall == Direction.UP)

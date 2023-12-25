@@ -1,12 +1,16 @@
 package dev.compactmods.machines.room.spatial;
 
+import dev.compactmods.compactmachines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
 import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
 import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.feather.edge.GraphEdge;
 import dev.compactmods.machines.room.graph.GraphNodes;
+import dev.compactmods.machines.room.graph.edge.RoomChunkEdge;
 import dev.compactmods.machines.room.graph.node.RoomChunkNode;
+import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
+import dev.compactmods.machines.util.MathUtil;
 import net.minecraft.world.level.ChunkPos;
 
 import java.lang.ref.WeakReference;
@@ -14,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class GraphChunkManager implements IRoomChunkManager {
@@ -21,9 +26,25 @@ public class GraphChunkManager implements IRoomChunkManager {
     private final MemoryGraph graph;
     private final Map<ChunkPos, RoomChunkNode> chunks;
 
-    public GraphChunkManager(MemoryGraph graph) {
-        this.graph = graph;
+    public GraphChunkManager() {
+        this.graph = new MemoryGraph();
         this.chunks = new HashMap<>();
+    }
+
+    @Override
+    public void calculateChunks(String roomCode, IRoomBoundaries boundaries) {
+        final var outer = boundaries.outerBounds();
+        final var allInside = MathUtil.getChunksFromAABB(outer).collect(Collectors.toSet());
+
+        final var ref = new RoomReferenceNode(roomCode);
+        graph.addNode(ref);
+
+        for(var c : allInside) {
+            final var chunk = new RoomChunkNode(UUID.randomUUID(), new RoomChunkNode.Data(c));
+            graph.addNode(chunk);
+            graph.connectNodes(ref, chunk, new RoomChunkEdge(ref, chunk));
+            chunks.put(c, chunk);
+        }
     }
 
     @Override

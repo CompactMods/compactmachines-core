@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface IRoomChunkManager {
 
+    void calculateChunks(String roomCode, IRoomBoundaries boundaries);
+
     Optional<String> findRoomByChunk(ChunkPos chunk);
 
     IRoomChunks get(String room);
