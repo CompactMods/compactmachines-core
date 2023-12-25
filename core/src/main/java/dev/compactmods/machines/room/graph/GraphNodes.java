@@ -19,7 +19,7 @@ public class GraphNodes {
 //    public static final GraphNodeScalarFunction<CompactMachineNode, Optional<String>> MACHINE_TO_ROOM_CODE =
 //            (graph, machineNode) -> GraphTraversalHelper.successors(graph, machineNode, RoomReferenceNode.class).map(RoomReferenceNode::code).findFirst();
 
-    public static final OutboundGraphEdgeLookupFunction<RoomRegistrationNode, RoomChunkNode> ROOM_CHUNKS =
+    public static final OutboundGraphEdgeLookupFunction<RoomReferenceNode, RoomChunkNode> ROOM_CHUNKS =
             (edgeAccessor, regNode) -> edgeAccessor.outboundEdges(regNode, RoomChunkNode.class);
 
     public static final GraphAdjacentNodeStream<RoomChunkNode, RoomRegistrationNode> LOOKUP_ROOM_REGISTRATION =

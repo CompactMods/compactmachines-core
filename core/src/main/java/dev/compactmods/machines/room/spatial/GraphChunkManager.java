@@ -38,7 +38,7 @@ public class GraphChunkManager implements IRoomChunkManager {
 
     @Override
     public IRoomChunks get(String room) {
-        final var regNode = graph.nodes(RoomRegistrationNode.class)
+        final var regNode = graph.nodes(RoomReferenceNode.class)
                 .filter(rn -> rn.code().equals(room))
                 .findFirst();
 
