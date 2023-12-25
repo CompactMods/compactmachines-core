@@ -1,7 +1,8 @@
-import java.text.SimpleDateFormat
-import java.util.Date
+
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
+import java.text.SimpleDateFormat
+import java.util.*
 
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 val mcVersion = property("minecraft_version") as String
@@ -33,7 +34,6 @@ base {
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     withJavadocJar()
-    withSourcesJar()
 }
 
 repositories {
@@ -77,19 +77,10 @@ tasks.named<RemapJarTask>("remapJar") {
     targetNamespace.set("named")
 }
 
-tasks.create<RemapJarTask>("remapSrgJar") {
-    val out = tasks.getByName<Jar>("jar").archiveFile
-    this.inputFile.set(out)
-
-    targetNamespace.set("srg")
-    archiveClassifier.set("srg")
-}
-
 val PACKAGES_URL = System.getenv("GH_PKG_URL") ?: "https://maven.pkg.github.com/compactmods/compactmachines-core"
 publishing {
     publications.register<MavenPublication>("room-upgrade") {
         from(components.getByName("java"))
-        artifact(tasks.named("remapSrgJar"))
     }
 
     repositories {

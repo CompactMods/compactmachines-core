@@ -50,7 +50,6 @@ base {
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     withJavadocJar()
-    withSourcesJar()
 }
 
 repositories {
