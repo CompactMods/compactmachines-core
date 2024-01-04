@@ -1,7 +1,8 @@
-import java.text.SimpleDateFormat
-import java.util.*
+
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
+import java.text.SimpleDateFormat
+import java.util.*
 
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 val mcVersion = property("minecraft_version") as String
@@ -14,7 +15,7 @@ plugins {
     java
     id("maven-publish")
     id("architectury-plugin") version "3.4-SNAPSHOT"
-    id("dev.architectury.loom") version "1.1-SNAPSHOT"
+    id("dev.architectury.loom") version "1.4-SNAPSHOT"
 }
 
 architectury {

@@ -14,7 +14,7 @@ plugins {
     java
     id("maven-publish")
     id("architectury-plugin") version "3.4-SNAPSHOT"
-    id("dev.architectury.loom") version "1.1-SNAPSHOT"
+    id("dev.architectury.loom") version "1.4-SNAPSHOT"
 }
 
 architectury {
