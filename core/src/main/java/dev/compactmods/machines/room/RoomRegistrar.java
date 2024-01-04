@@ -107,6 +107,9 @@ public class RoomRegistrar extends SavedData implements IRoomRegistrar {
         this.graph.addNode(node);
 
         RoomApi.chunkManager().calculateChunks(data.code(), node);
+
+        setDirty();
+
         return makeRoomInstance(node);
     }
 
@@ -151,6 +154,11 @@ public class RoomRegistrar extends SavedData implements IRoomRegistrar {
                 .map(RoomRegistrar::makeRoomInstance);
     }
 
+    private void registerDirty(RoomRegistrationNode node) {
+        registrationNodes.putIfAbsent(node.code(), node);
+        graph.addNode(node);
+    }
+
     public static class Serializer {
 
         public static CompoundTag serialize(RoomRegistrar instance, CompoundTag tag) {
@@ -164,14 +172,14 @@ public class RoomRegistrar extends SavedData implements IRoomRegistrar {
         }
 
         public static RoomRegistrar load(CompoundTag tag) {
-            RoomRegistrar inst = new RoomRegistrar();
+            RoomRegistrar registrar = new RoomRegistrar();
 
             RoomRegistrationNode.CODEC.listOf()
                     .parse(NbtOps.INSTANCE, tag.getList("rooms", CompoundTag.TAG_COMPOUND))
                     .getOrThrow(false, LOGS::error)
-                    .forEach(dn -> inst.registrationNodes.putIfAbsent(dn.code(), dn));
+                    .forEach(registrar::registerDirty);
 
-            return inst;
+            return registrar;
         }
     }
 }
