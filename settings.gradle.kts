@@ -4,8 +4,6 @@ pluginManagement {
         mavenLocal()
         gradlePluginPortal()
 
-        maven("https://maven.architectury.dev/")
-
         maven("https://libraries.minecraft.net") {
             name = "Minecraft"
         }
@@ -17,12 +15,8 @@ pluginManagement {
             }
         }
 
-        maven("https://maven.neoforged.net/releases/") {
-            name = "NeoForged"
-        }
-
-        maven("https://maven.fabricmc.net") {
-            name = "Fabric"
+        maven("https://repo.spongepowered.org/repository/maven-public/") {
+            name = "Sponge Snapshots"
         }
     }
 }
