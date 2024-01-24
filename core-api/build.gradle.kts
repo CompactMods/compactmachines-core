@@ -3,8 +3,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
-val mcVersion = property("minecraft_version") as String
-// val parchmentVersion = property("parchment_version") as String
 
 plugins {
     java
@@ -13,7 +11,7 @@ plugins {
 }
 
 minecraft {
-    version(mcVersion)
+    version(libraries.versions.minecraft.get())
 }
 
 sourceSets {

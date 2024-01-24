@@ -3,9 +3,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
-val mcVersion = property("minecraft_version") as String
-// val parchmentVersion = property("parchment_version") as String
-val feather_version = property("feather_version") as String
 
 plugins {
     java
@@ -14,7 +11,7 @@ plugins {
 }
 
 minecraft {
-    version(mcVersion)
+    version(libraries.versions.minecraft.get())
 }
 
 sourceSets {
@@ -64,19 +61,21 @@ repositories {
 }
 
 val cmModules = listOf(
-        project(":core-api"),
-        project(":room-api"),
-        project(":room-upgrade-api")
+    findProject(":core-api"),
+    findProject(":room-api"),
+    findProject(":room-upgrade-api")
 )
 
 dependencies {
     cmModules.forEach {
-        implementation(it)
-        testImplementation(it)
+        if(it != null) {
+            implementation(it)
+            testImplementation(it)
+        }
     }
 
-    compileOnly("com.aventrix.jnanoid", "jnanoid", "2.0.0")
-    implementation("dev.compactmods", "feather", feather_version)
+    compileOnly(libraries.feather)
+    implementation(libraries.jnanoid)
 }
 
 tasks.withType<JavaCompile> {
