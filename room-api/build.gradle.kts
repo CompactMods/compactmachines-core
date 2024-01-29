@@ -1,8 +1,13 @@
-
 import java.text.SimpleDateFormat
 import java.util.*
 
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
+
+var coreApi: Project;
+if (rootProject.name == "Compact Machines Core")
+    coreApi = project(":core-api")
+else
+    coreApi = project(":core:core-api")
 
 plugins {
     java
@@ -25,7 +30,7 @@ java {
 }
 
 dependencies {
-    compileOnly(project(":core-api"))
+     compileOnly(coreApi)
 }
 
 tasks.withType<Jar> {

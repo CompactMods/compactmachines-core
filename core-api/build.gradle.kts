@@ -15,13 +15,6 @@ minecraft {
 }
 
 sourceSets {
-    named("main") {
-        resources {
-            //The API has no resources
-            setSrcDirs(emptyList<String>())
-        }
-    }
-
     named("test") {
         resources {
             //The test module has no resources

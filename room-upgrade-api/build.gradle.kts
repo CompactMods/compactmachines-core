@@ -4,6 +4,16 @@ import java.util.*
 
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 
+var coreApi: Project;
+var roomApi: Project;
+if (rootProject.name == "Compact Machines Core") {
+    coreApi = project(":core-api")
+    roomApi = project(":room-api")
+} else {
+    coreApi = project(":core:core-api")
+    roomApi = project(":core:room-api")
+}
+
 plugins {
     java
     id("maven-publish")
@@ -25,8 +35,8 @@ java {
 }
 
 dependencies {
-    compileOnly(project(":core-api"))
-    compileOnly(project(":room-api"))
+    compileOnly(coreApi)
+    compileOnly(roomApi)
 }
 
 tasks.withType<Jar> {

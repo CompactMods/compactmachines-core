@@ -1,4 +1,3 @@
-
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -12,22 +11,6 @@ plugins {
 
 minecraft {
     version(libraries.versions.minecraft.get())
-}
-
-sourceSets {
-    named("main") {
-        resources {
-            //The API has no resources
-            setSrcDirs(emptyList<String>())
-        }
-    }
-
-    named("test") {
-        resources {
-            //The test module has no resources
-            setSrcDirs(emptyList<String>())
-        }
-    }
 }
 
 base {
@@ -60,11 +43,20 @@ repositories {
     }
 }
 
-val cmModules = listOf(
-    findProject(":core-api"),
-    findProject(":room-api"),
-    findProject(":room-upgrade-api")
-)
+var cmModules: List<Project>;
+if (rootProject.name == "Compact Machines Core") {
+    cmModules = listOf(
+            project(":core-api"),
+            project(":room-api"),
+            project(":room-upgrade-api")
+    )
+} else {
+    cmModules = listOf(
+            project(":core:core-api"),
+            project(":core:room-api"),
+            project(":core:room-upgrade-api")
+    )
+}
 
 dependencies {
     cmModules.forEach {
