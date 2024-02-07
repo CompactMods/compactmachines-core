@@ -12,21 +12,23 @@ base {
     version = versionMain
 }
 
-afterEvaluate {
-    println(rootProject.name)
-    rootProject.childProjects.forEach {
-        println(it.key)
-    }
+var cmModules: List<Project>;
+if (rootProject.name == "Compact Machines Core") {
+    cmModules = listOf(
+            project(":core-api"),
+            project(":room-api"),
+            project(":room-upgrade-api")
+    )
+} else {
+    cmModules = listOf(
+            project(":core:core-api"),
+            project(":core:room-api"),
+            project(":core:room-upgrade-api")
+    )
 }
 
-var deps: List<Project> = listOf(
-        project(":core-api"),
-        project(":room-api"),
-        project(":room-upgrade-api")
-)
-
 dependencies {
-    deps.forEach {
+    cmModules.forEach {
         api(it)
         runtime(it)
     }
