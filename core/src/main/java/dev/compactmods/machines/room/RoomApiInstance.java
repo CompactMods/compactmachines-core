@@ -1,12 +1,12 @@
 package dev.compactmods.machines.room;
 
-import dev.compactmods.compactmachines.api.room.IRoomApi;
-import dev.compactmods.compactmachines.api.room.IRoomRegistrar;
-import dev.compactmods.compactmachines.api.room.owner.IRoomOwners;
-import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
-import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
-import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
-import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManagers;
+import dev.compactmods.machines.api.room.IRoomApi;
+import dev.compactmods.machines.api.room.IRoomRegistrar;
+import dev.compactmods.machines.api.room.owner.IRoomOwners;
+import dev.compactmods.machines.api.room.spatial.IRoomChunkManager;
+import dev.compactmods.machines.api.room.spatial.IRoomChunks;
+import dev.compactmods.machines.api.room.spawn.IRoomSpawnManager;
+import dev.compactmods.machines.api.room.spawn.IRoomSpawnManagers;
 
 public record RoomApiInstance(
         IRoomRegistrar registrar,

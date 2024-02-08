@@ -1,6 +1,6 @@
-package dev.compactmods.compactmachines.api.room.owner;
+package dev.compactmods.machines.api.room.owner;
 
-import dev.compactmods.compactmachines.api.room.exceptions.NonexistentRoomException;
+import dev.compactmods.machines.api.room.exceptions.NonexistentRoomException;
 
 import java.util.UUID;
 import java.util.stream.Stream;

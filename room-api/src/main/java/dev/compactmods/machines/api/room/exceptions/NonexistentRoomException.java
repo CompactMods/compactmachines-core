@@ -1,4 +1,4 @@
-package dev.compactmods.compactmachines.api.room.exceptions;
+package dev.compactmods.machines.api.room.exceptions;
 
 public class NonexistentRoomException extends Throwable {
     private final String room;

@@ -1,8 +1,8 @@
-package dev.compactmods.compactmachines.api.room;
+package dev.compactmods.machines.api.room;
 
-import dev.compactmods.compactmachines.api.room.spatial.IRoomBoundaries;
-import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
-import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
+import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
+import dev.compactmods.machines.api.room.spatial.IRoomChunks;
+import dev.compactmods.machines.api.room.spawn.IRoomSpawnManager;
 
 import java.util.function.Supplier;
 

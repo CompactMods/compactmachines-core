@@ -1,4 +1,4 @@
-package dev.compactmods.compactmachines.api.room.spatial;
+package dev.compactmods.machines.api.room.spatial;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;

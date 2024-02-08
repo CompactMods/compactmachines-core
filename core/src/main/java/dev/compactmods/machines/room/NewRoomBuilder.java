@@ -1,6 +1,6 @@
 package dev.compactmods.machines.room;
 
-import dev.compactmods.compactmachines.api.room.registration.IRoomBuilder;
+import dev.compactmods.machines.api.room.registration.IRoomBuilder;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;

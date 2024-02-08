@@ -1,9 +1,9 @@
 package dev.compactmods.machines.room.spawn;
 
-import dev.compactmods.compactmachines.api.room.IRoomRegistrar;
-import dev.compactmods.compactmachines.api.room.spatial.IRoomBoundaries;
-import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
-import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManagers;
+import dev.compactmods.machines.api.room.IRoomRegistrar;
+import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
+import dev.compactmods.machines.api.room.spawn.IRoomSpawnManager;
+import dev.compactmods.machines.api.room.spawn.IRoomSpawnManagers;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import net.minecraft.server.MinecraftServer;
 

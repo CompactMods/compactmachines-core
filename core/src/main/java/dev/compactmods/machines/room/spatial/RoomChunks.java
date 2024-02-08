@@ -1,6 +1,6 @@
 package dev.compactmods.machines.room.spatial;
 
-import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
+import dev.compactmods.machines.api.room.spatial.IRoomChunks;
 import net.minecraft.world.level.ChunkPos;
 
 import java.util.Set;

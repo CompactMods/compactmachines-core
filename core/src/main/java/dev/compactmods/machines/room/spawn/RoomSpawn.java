@@ -2,7 +2,7 @@ package dev.compactmods.machines.room.spawn;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawn;
+import dev.compactmods.machines.api.room.spawn.IRoomSpawn;
 import dev.compactmods.machines.api.codec.CodecExtensions;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;

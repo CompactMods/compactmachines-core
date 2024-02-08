@@ -2,7 +2,7 @@ package dev.compactmods.machines.room.graph.node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.compactmods.compactmachines.api.room.spatial.IRoomBoundaries;
+import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.feather.node.Node;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Vec3i;

@@ -1,8 +1,8 @@
 package dev.compactmods.machines.room.spatial;
 
-import dev.compactmods.compactmachines.api.room.spatial.IRoomBoundaries;
-import dev.compactmods.compactmachines.api.room.spatial.IRoomChunkManager;
-import dev.compactmods.compactmachines.api.room.spatial.IRoomChunks;
+import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
+import dev.compactmods.machines.api.room.spatial.IRoomChunkManager;
+import dev.compactmods.machines.api.room.spatial.IRoomChunks;
 import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.feather.edge.GraphEdge;
 import dev.compactmods.machines.room.graph.GraphNodes;

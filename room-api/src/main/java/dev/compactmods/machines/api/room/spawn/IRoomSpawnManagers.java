@@ -1,4 +1,4 @@
-package dev.compactmods.compactmachines.api.room.spawn;
+package dev.compactmods.machines.api.room.spawn;
 
 public interface IRoomSpawnManagers {
 

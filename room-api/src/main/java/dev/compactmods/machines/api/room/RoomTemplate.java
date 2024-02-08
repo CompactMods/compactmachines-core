@@ -1,4 +1,4 @@
-package dev.compactmods.compactmachines.api.room;
+package dev.compactmods.machines.api.room;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

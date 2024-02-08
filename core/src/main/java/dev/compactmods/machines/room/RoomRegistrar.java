@@ -1,9 +1,9 @@
 package dev.compactmods.machines.room;
 
-import dev.compactmods.compactmachines.api.room.IRoomRegistrar;
-import dev.compactmods.compactmachines.api.room.RoomApi;
-import dev.compactmods.compactmachines.api.room.RoomInstance;
-import dev.compactmods.compactmachines.api.room.registration.IRoomBuilder;
+import dev.compactmods.machines.api.room.IRoomRegistrar;
+import dev.compactmods.machines.api.room.RoomApi;
+import dev.compactmods.machines.api.room.RoomInstance;
+import dev.compactmods.machines.api.room.registration.IRoomBuilder;
 import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.machines.api.Constants;
 import dev.compactmods.machines.api.dimension.CompactDimension;

@@ -1,6 +1,6 @@
 package dev.compactmods.machines.api.room.upgrade;
 
-import dev.compactmods.compactmachines.api.room.RoomInstance;
+import dev.compactmods.machines.api.room.RoomInstance;
 import net.minecraft.server.level.ServerLevel;
 
 public interface LevelLoadedUpgradeEventListener extends RoomUpgrade {

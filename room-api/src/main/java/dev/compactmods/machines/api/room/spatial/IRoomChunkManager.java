@@ -1,4 +1,4 @@
-package dev.compactmods.compactmachines.api.room.spatial;
+package dev.compactmods.machines.api.room.spatial;
 
 import net.minecraft.world.level.ChunkPos;
 

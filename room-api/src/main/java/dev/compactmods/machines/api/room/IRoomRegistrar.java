@@ -1,6 +1,6 @@
-package dev.compactmods.compactmachines.api.room;
+package dev.compactmods.machines.api.room;
 
-import dev.compactmods.compactmachines.api.room.registration.IRoomBuilder;
+import dev.compactmods.machines.api.room.registration.IRoomBuilder;
 
 import java.util.Optional;
 import java.util.UUID;

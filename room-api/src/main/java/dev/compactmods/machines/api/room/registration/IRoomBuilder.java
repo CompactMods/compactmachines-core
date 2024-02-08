@@ -1,4 +1,4 @@
-package dev.compactmods.compactmachines.api.room.registration;
+package dev.compactmods.machines.api.room.registration;
 
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;

@@ -1,4 +1,4 @@
-package dev.compactmods.compactmachines.api.room.history;
+package dev.compactmods.machines.api.room.history;
 
 public interface IPlayerRoomEntryPointManager {
 

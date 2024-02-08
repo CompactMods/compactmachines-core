@@ -3,10 +3,29 @@ import java.util.*
 
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 
+var coreApi: Project;
+var roomApi: Project;
+var roomUpgradeApi: Project;
+if (rootProject.name == "Compact Machines Core") {
+    coreApi = project(":core-api")
+    roomApi = project(":room-api")
+    roomUpgradeApi = project(":room-upgrade-api")
+} else {
+    coreApi = project(":core:core-api")
+    roomApi = project(":core:room-api")
+    roomUpgradeApi = project(":core:room-upgrade-api")
+}
+
+var cmModules = listOf(coreApi, roomApi, roomUpgradeApi)
+
 plugins {
     java
     id("maven-publish")
     id("org.spongepowered.gradle.vanilla") version "0.2.1-SNAPSHOT"
+}
+
+cmModules.forEach {
+    project.evaluationDependsOn(it.path)
 }
 
 minecraft {
@@ -43,21 +62,6 @@ repositories {
     }
 }
 
-var cmModules: List<Project>;
-if (rootProject.name == "Compact Machines Core") {
-    cmModules = listOf(
-            project(":core-api"),
-            project(":room-api"),
-            project(":room-upgrade-api")
-    )
-} else {
-    cmModules = listOf(
-            project(":core:core-api"),
-            project(":core:room-api"),
-            project(":core:room-upgrade-api")
-    )
-}
-
 dependencies {
     cmModules.forEach {
         if(it != null) {
@@ -68,6 +72,13 @@ dependencies {
 
     compileOnly(libraries.feather)
     implementation(libraries.jnanoid)
+}
+
+tasks.jar {
+    from(sourceSets.main.get().output)
+    cmModules.forEach {
+        from (it.sourceSets.main.get().output)
+    }
 }
 
 tasks.withType<JavaCompile> {
