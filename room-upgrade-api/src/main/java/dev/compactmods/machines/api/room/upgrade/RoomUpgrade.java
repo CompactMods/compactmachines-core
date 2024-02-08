@@ -5,7 +5,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import static dev.compactmods.machines.api.core.Constants.MOD_ID;
+import static dev.compactmods.machines.api.Constants.MOD_ID;
 
 public interface RoomUpgrade {
 

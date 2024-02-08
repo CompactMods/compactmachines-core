@@ -1,7 +1,6 @@
 package dev.compactmods.machines.api.shrinking;
 
-import dev.compactmods.machines.api.core.Constants;
-import net.minecraft.core.Registry;
+import dev.compactmods.machines.api.Constants;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;

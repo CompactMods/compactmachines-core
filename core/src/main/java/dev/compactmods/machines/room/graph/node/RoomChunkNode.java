@@ -3,7 +3,7 @@ package dev.compactmods.machines.room.graph.node;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.feather.node.Node;
-import dev.compactmods.machines.codec.CodecExtensions;
+import dev.compactmods.machines.api.codec.CodecExtensions;
 import net.minecraft.world.level.ChunkPos;
 
 import java.util.UUID;

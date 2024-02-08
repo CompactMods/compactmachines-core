@@ -12,4 +12,12 @@ like the dimension/registry keys, location-related classes, and block/item tags.
 ## Common Main (core)
 Contains core mod code such as structure generation, math, advancements, and data classes.
 
+## Room API (room-api)
+Contains classes and systems for working with machine rooms.
 
+- Player Room History Management
+- Room Owner Management
+- Room Registration Systems
+- Room Spawn Management
+
+## Room Upgrade API (room-upgrade-api)

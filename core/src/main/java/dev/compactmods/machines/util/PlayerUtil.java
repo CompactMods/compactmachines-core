@@ -1,14 +1,10 @@
 package dev.compactmods.machines.util;
 
 import com.mojang.authlib.GameProfile;
-import dev.compactmods.machines.api.core.Messages;
-import dev.compactmods.machines.i18n.TranslationUtil;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec2;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;

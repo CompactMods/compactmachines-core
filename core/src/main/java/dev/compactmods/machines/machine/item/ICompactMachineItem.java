@@ -1,6 +1,5 @@
 package dev.compactmods.machines.machine.item;
 
-import dev.compactmods.machines.api.machine.MachineNbt;
 import net.minecraft.world.item.ItemStack;
 
 public interface ICompactMachineItem {

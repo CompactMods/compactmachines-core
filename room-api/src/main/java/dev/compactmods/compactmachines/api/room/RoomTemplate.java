@@ -2,7 +2,7 @@ package dev.compactmods.compactmachines.api.room;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.compactmods.machines.api.core.Constants;
+import dev.compactmods.machines.api.Constants;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
-import static dev.compactmods.machines.api.core.Constants.MOD_ID;
+import static dev.compactmods.machines.api.Constants.MOD_ID;
 
 /**
  * Template structure for creating a new Compact Machine room. These can be added and removed from the registry

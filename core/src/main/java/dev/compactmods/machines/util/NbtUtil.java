@@ -1,6 +1,6 @@
 package dev.compactmods.machines.util;
 
-import dev.compactmods.machines.codec.CodecExtensions;
+import dev.compactmods.machines.api.codec.CodecExtensions;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.ChunkPos;

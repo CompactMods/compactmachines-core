@@ -1,5 +1,5 @@
 package dev.compactmods.machines.api.machine;
 
-public interface IMachineBlockEntity {
+public interface IColoredMachine {
     int getColor();
 }

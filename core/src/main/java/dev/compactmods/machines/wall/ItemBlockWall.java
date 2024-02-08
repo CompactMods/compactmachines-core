@@ -1,7 +1,7 @@
 package dev.compactmods.machines.wall;
 
-import dev.compactmods.machines.api.core.CMTags;
-import dev.compactmods.machines.api.core.Tooltips;
+import dev.compactmods.machines.api.Tooltips;
+import dev.compactmods.machines.api.room.WallConstants;
 import dev.compactmods.machines.i18n.TranslationUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,7 +26,7 @@ public class ItemBlockWall extends BlockItem {
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
-        if (stack.is(CMTags.SOLID_WALL_ITEMS)) {
+        if (stack.is(WallConstants.TAG_SOLID_WALL_ITEMS)) {
             MutableComponent text;
             if (Screen.hasShiftDown()) {
                 text = TranslationUtil.tooltip(Tooltips.Details.SOLID_WALL)

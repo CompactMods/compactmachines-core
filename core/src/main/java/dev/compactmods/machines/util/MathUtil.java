@@ -10,16 +10,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.stream.Stream;
 
 public class MathUtil {
-    public static ChunkPos getChunkPos(Vec3 precise) {
-        final var x = SectionPos.blockToSectionCoord(precise.x);
-        final var z = SectionPos.blockToSectionCoord(precise.z);
-        return new ChunkPos(x, z);
-    }
 
     public static Stream<ChunkPos> getChunksFromAABB(AABB bounds) {
         ChunkPos min = new ChunkPos(BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ));
         ChunkPos max = new ChunkPos(BlockPos.containing(bounds.maxX, bounds.maxY, bounds.maxZ));
-
+        
         return ChunkPos.rangeClosed(min, max);
     }
 

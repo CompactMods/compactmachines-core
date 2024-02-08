@@ -1,4 +1,4 @@
-package dev.compactmods.machines.api.core;
+package dev.compactmods.machines.api;
 
 import net.minecraft.resources.ResourceLocation;
 

@@ -1,6 +1,6 @@
 package dev.compactmods.compactmachines.api.room;
 
-import dev.compactmods.machines.api.CMBlocks;
+import dev.compactmods.machines.api.room.WallConstants;
 import dev.compactmods.machines.api.util.BlockSpaceUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +12,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -53,7 +52,7 @@ public class CompactRoomGenerator {
      * @param outerBounds Outer dimensions of the room.
      */
     public static void generateRoom(LevelAccessor world, AABB outerBounds) {
-        final var block = BuiltInRegistries.BLOCK.get(CMBlocks.SOLID_WALL);
+        final var block = BuiltInRegistries.BLOCK.get(WallConstants.SOLID_WALL);
         if (block != null) {
             final var solidWall = block.defaultBlockState();
             generateRoom(world, outerBounds, solidWall);

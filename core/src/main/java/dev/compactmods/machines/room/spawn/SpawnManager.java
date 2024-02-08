@@ -4,7 +4,7 @@ import dev.compactmods.compactmachines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawn;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawnManager;
 import dev.compactmods.compactmachines.api.room.spawn.IRoomSpawns;
-import dev.compactmods.machines.api.core.Constants;
+import dev.compactmods.machines.api.Constants;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import net.minecraft.nbt.CompoundTag;

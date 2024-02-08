@@ -1,8 +1,8 @@
-package dev.compactmods.machines.api.core;
+package dev.compactmods.machines.api.command;
 
 import net.minecraft.resources.ResourceLocation;
 
-import static dev.compactmods.machines.api.core.Constants.MOD_ID;
+import static dev.compactmods.machines.api.Constants.MOD_ID;
 
 public interface CMCommands {
     ResourceLocation LEVEL_REGISTERED = new ResourceLocation(MOD_ID, "level_registered");

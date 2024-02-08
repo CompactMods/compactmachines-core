@@ -1,5 +1,6 @@
-package dev.compactmods.machines.api.core;
+package dev.compactmods.machines.compat.jei;
 
+import dev.compactmods.machines.api.Constants;
 import net.minecraft.resources.ResourceLocation;
 
 public interface JeiInfo {
