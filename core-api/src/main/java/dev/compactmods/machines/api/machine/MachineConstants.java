@@ -12,6 +12,9 @@ public interface MachineConstants {
 
     ResourceLocation BOUND_MACHINE_BLOCK_ID = new ResourceLocation(Constants.MOD_ID, "machine");
     ResourceLocation BOUND_MACHINE_ENTITY = new ResourceLocation(Constants.MOD_ID, "machine");
+    ResourceKey<Block> BOUND_MACHINE_BLOCK_RESKEY = KeyHelper.blockResKey("machine");
+    ResourceKey<Item> BOUND_MACHINE_ITEM_RESKEY = KeyHelper.itemResKey("machine");
+
 
     ResourceLocation UNBOUND_MACHINE_BLOCK_ID = new ResourceLocation(Constants.MOD_ID, "new_machine");
     ResourceLocation UNBOUND_MACHINE_ITEM_ID = new ResourceLocation(Constants.MOD_ID, "new_machine");
@@ -32,5 +35,6 @@ public interface MachineConstants {
 
     TagKey<Block> MACHINE_BLOCK = KeyHelper.blockTag("machine");
     TagKey<Item> MACHINE_ITEM = KeyHelper.itemTagKey("machine");
+
 
 }
