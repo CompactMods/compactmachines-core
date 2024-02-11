@@ -1,11 +1,9 @@
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 
 plugins {
-    id("java-platform")
+    id("java-library")
     id("maven-publish")
 }
-
-javaPlatform.allowDependencies()
 
 base {
     group = "dev.compactmods.compactmachines"
@@ -30,15 +28,5 @@ if (rootProject.name == "Compact Machines Core") {
 dependencies {
     cmModules.forEach {
         api(it)
-        runtime(it)
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("platform") {
-            artifactId = "platform"
-            from(components["javaPlatform"])
-        }
     }
 }

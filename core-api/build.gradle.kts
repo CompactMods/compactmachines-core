@@ -5,7 +5,7 @@ import java.util.*
 val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 
 plugins {
-    java
+    id("java-library")
     id("maven-publish")
     id("org.spongepowered.gradle.vanilla") version "0.2.1-SNAPSHOT"
 }

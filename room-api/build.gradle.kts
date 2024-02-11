@@ -10,7 +10,7 @@ else
     coreApi = project(":core:core-api")
 
 plugins {
-    java
+    id("java-library")
     id("maven-publish")
     id("org.spongepowered.gradle.vanilla") version "0.2.1-SNAPSHOT"
 }
