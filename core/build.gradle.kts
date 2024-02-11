@@ -64,21 +64,12 @@ repositories {
 
 dependencies {
     cmModules.forEach {
-        if(it != null) {
-            implementation(it)
-            testImplementation(it)
-        }
+        implementation(it)
+        testImplementation(it)
     }
 
     compileOnly(libraries.feather)
     implementation(libraries.jnanoid)
-}
-
-tasks.jar {
-    from(sourceSets.main.get().output)
-    cmModules.forEach {
-        from (it.sourceSets.main.get().output)
-    }
 }
 
 tasks.withType<JavaCompile> {
