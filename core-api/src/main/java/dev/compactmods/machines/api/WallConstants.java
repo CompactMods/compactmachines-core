@@ -1,4 +1,4 @@
-package dev.compactmods.machines.api.room;
+package dev.compactmods.machines.api;
 
 import dev.compactmods.machines.api.util.KeyHelper;
 import net.minecraft.resources.ResourceKey;

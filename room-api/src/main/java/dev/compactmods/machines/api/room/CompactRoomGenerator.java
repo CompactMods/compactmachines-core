@@ -1,5 +1,6 @@
 package dev.compactmods.machines.api.room;
 
+import dev.compactmods.machines.api.WallConstants;
 import dev.compactmods.machines.api.util.BlockSpaceUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

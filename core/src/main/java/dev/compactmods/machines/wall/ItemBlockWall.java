@@ -1,7 +1,7 @@
 package dev.compactmods.machines.wall;
 
 import dev.compactmods.machines.api.Tooltips;
-import dev.compactmods.machines.api.room.WallConstants;
+import dev.compactmods.machines.api.WallConstants;
 import dev.compactmods.machines.i18n.TranslationUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
