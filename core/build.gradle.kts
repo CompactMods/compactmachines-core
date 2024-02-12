@@ -64,8 +64,7 @@ repositories {
 
 dependencies {
     cmModules.forEach {
-        implementation(it)
-        testImplementation(it)
+        compileOnly(it)
     }
 
     compileOnly(libraries.feather)
