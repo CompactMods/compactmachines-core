@@ -10,6 +10,10 @@ import java.util.stream.Stream;
 
 public class BlockSpaceUtil {
 
+    public static String aabbToString(AABB aabb) {
+        return "%s,%s,%s".formatted(aabb.getXsize(), aabb.getYsize(), aabb.getZsize());
+    }
+
     public static Stream<BlockPos> blocksInside(AABB bounds) {
         return BlockPos.betweenClosedStream(bounds.contract(1, 1, 1));
     }

@@ -1,9 +1,10 @@
 package dev.compactmods.machines.room;
 
+import dev.compactmods.machines.api.room.RoomInstance;
 import dev.compactmods.machines.api.room.registration.IRoomBuilder;
+import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -11,22 +12,21 @@ import java.util.UUID;
 public class NewRoomBuilder implements IRoomBuilder {
     private final String code;
     private int color = 0;
-    private Vec3i dimensions = Vec3i.ZERO;
-    private Vec3 center = Vec3.ZERO;
-    private Vec3 centerOffset = Vec3.ZERO;
+
+    private AABB boundaries = AABB.ofSize(Vec3.ZERO, 1, 1, 1);
     UUID owner;
 
     NewRoomBuilder() {
         this.code = RoomCodeGenerator.generateRoomId();
     }
 
-    public NewRoomBuilder dimensions(Vec3i dimensions) {
-        this.dimensions = dimensions;
+    public NewRoomBuilder boundaries(AABB boundaries) {
+        this.boundaries = boundaries;
         return this;
     }
 
     public NewRoomBuilder offsetCenter(Vec3 offset) {
-        this.centerOffset = offset;
+        this.boundaries = this.boundaries.move(offset);
         return this;
     }
 
@@ -40,16 +40,7 @@ public class NewRoomBuilder implements IRoomBuilder {
         return this;
     }
 
-    int yOffset() {
-        return Math.floorDiv(dimensions.getY(), 2);
-    }
-
-    public NewRoomBuilder setCenter(BlockPos newCenter) {
-        this.center = Vec3.atCenterOf(newCenter);
-        return this;
-    }
-
-    RoomRegistrationNode.Data build() {
-        return new RoomRegistrationNode.Data(code, color, dimensions, center.add(centerOffset));
+    public RoomInstance build() {
+        return new RoomInstance(code, color, () -> boundaries);
     }
 }

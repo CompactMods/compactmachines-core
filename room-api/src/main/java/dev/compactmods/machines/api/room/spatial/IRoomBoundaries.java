@@ -7,11 +7,9 @@ import net.minecraft.world.phys.Vec3;
 
 public interface IRoomBoundaries {
 
-    Vec3i dimensions();
-
-    Vec3 center();
-
-    AABB innerBounds();
+    default AABB innerBounds() {
+        return outerBounds().deflate(1);
+    }
 
     AABB outerBounds();
 

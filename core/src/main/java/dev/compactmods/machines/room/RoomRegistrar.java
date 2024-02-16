@@ -3,6 +3,7 @@ package dev.compactmods.machines.room;
 import dev.compactmods.machines.api.room.IRoomRegistrar;
 import dev.compactmods.machines.api.room.RoomApi;
 import dev.compactmods.machines.api.room.RoomInstance;
+import dev.compactmods.machines.api.room.RoomTemplate;
 import dev.compactmods.machines.api.room.registration.IRoomBuilder;
 import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.machines.api.Constants;
@@ -10,10 +11,13 @@ import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import dev.compactmods.machines.util.MathUtil;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -52,65 +56,33 @@ public class RoomRegistrar extends SavedData implements IRoomRegistrar {
     @NotNull
     public CompoundTag save(@NotNull CompoundTag tag) {
         return Serializer.serialize(this, tag);
-
-        //region Room Owner nodes
-//        final HashMap<UUID, UUID> ownerByUuidMap = new HashMap<>();
-//        owners.values().forEach(ownerNode -> ownerByUuidMap.put(ownerNode.owner(), ownerNode.id()));
-//        ListTag ownerList = (ListTag) RoomOwnerNode.CODEC.listOf()
-//                .encodeStart(NbtOps.INSTANCE, List.copyOf(owners.values()))
-//                .getOrThrow(false, LOGS::fatal);
-//
-//        ownerList.stream().map(CompoundTag.class::cast)
-//                .forEach(oct -> oct.putUUID(NBT_NODE_ID_KEY, ownerByUuidMap.get(oct.getUUID("owner"))));
-//
-//        tag.put("owners", ownerList);
-        //endregion
-
-        //region Room-Owner connections
-//        if (!registrationNodes.isEmpty() && !owners.isEmpty()) {
-//            final ListTag roomOwnerConnections = registrationNodes.values()
-//                    .stream()
-//                    .map(roomNode -> graph.adjacentNodes(roomNode)
-//                            .stream()
-//                            .filter(RoomOwnerNode.class::isInstance)
-//                            .map(RoomOwnerNode.class::cast)
-//                            .findFirst()
-//                            .map(roomOwner -> {
-//                                UUID roomId = metaNodeIdMap.get(roomNode.code());
-//                                UUID ownerId = ownerByUuidMap.get(roomOwner.owner());
-//                                CompoundTag connection = new CompoundTag();
-//                                connection.putUUID("room", roomId);
-//                                connection.putUUID("owner", ownerId);
-//                                return connection;
-//                            }))
-//                    .filter(Optional::isPresent)
-//                    .map(Optional::get)
-//                    .collect(NbtListCollector.toNbtList());
-//
-//            tag.put("roomOwners", roomOwnerConnections);
-//        }
-        //endregion
     }
 
     @Override
-    public RoomInstance createNew(Consumer<IRoomBuilder> build) {
-        final var builder = new NewRoomBuilder();
+    public IRoomBuilder builder() {
+        return new NewRoomBuilder();
+    }
 
+    @Override
+    public AABB getNextBoundaries(RoomTemplate template) {
         final var region = MathUtil.getRegionPositionByIndex(registrationNodes.size());
-        builder.setCenter(MathUtil.getCenterWithY(region, 40).above(builder.yOffset()));
+        final var floor = MathUtil.getCenterWithY(region, 0);
 
-        build.accept(builder);
-        final var data = builder.build();
+        return template.getZeroBoundaries().move(floor);
+    }
 
-        var node = new RoomRegistrationNode(UUID.randomUUID(), data);
-        this.registrationNodes.put(data.code(), node);
+    @Override
+    public RoomInstance createNew(RoomTemplate template, UUID owner, Consumer<IRoomBuilder> override) {
+        final var inst = IRoomRegistrar.super.createNew(template, owner, override);
+
+        var node = new RoomRegistrationNode(UUID.randomUUID(), new RoomRegistrationNode.Data(inst));
+        this.registrationNodes.put(inst.code(), node);
         this.graph.addNode(node);
 
-        RoomApi.chunkManager().calculateChunks(data.code(), node);
-
+        RoomApi.chunkManager().calculateChunks(inst.code(), node);
         setDirty();
 
-        return makeRoomInstance(node);
+        return inst;
     }
 
     @Override
@@ -130,11 +102,7 @@ public class RoomRegistrar extends SavedData implements IRoomRegistrar {
 
     @NotNull
     private static RoomInstance makeRoomInstance(RoomRegistrationNode regNode) {
-        return new RoomInstance(regNode.code(), regNode.defaultMachineColor(),
-                regNode,
-                () -> RoomApi.spawnManager(regNode.code()),
-                () -> RoomApi.chunks(regNode.code())
-        );
+        return new RoomInstance(regNode.code(), regNode.defaultMachineColor(), regNode);
     }
 
     @Override

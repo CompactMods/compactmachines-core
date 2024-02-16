@@ -45,7 +45,7 @@ public class RoomApi {
     public static RoomInstance newRoom(MinecraftServer server, RoomTemplate template, UUID owner) throws MissingDimensionException {
         final var instance = INSTANCE.registrar().createNew(template, owner);
         final var compactDim = CompactDimension.forServer(server);
-        CompactRoomGenerator.generateRoom(compactDim, template, instance.boundaries().center());
+        CompactRoomGenerator.generateRoom(compactDim, instance.boundaries().outerBounds());
         return instance;
     }
 

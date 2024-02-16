@@ -34,17 +34,6 @@ public class CompactRoomGenerator {
         });
     }
 
-    public static void generateRoom(ServerLevel level, RoomTemplate template, Vec3 roomCenter) {
-        var bounds = AABB
-                .ofSize(roomCenter, template.dimensions().getX(), template.dimensions().getY(), template.dimensions().getZ())
-                .inflate(1);
-
-        generateRoom(level, bounds);
-        if (!template.prefillTemplate().equals(RoomTemplate.NO_TEMPLATE)) {
-            fillWithTemplate(level, template.prefillTemplate(), template.dimensions(), roomCenter);
-        }
-    }
-
     /**
      * Generates a machine "internal" structure in a world via a machine size and a central point.
      *

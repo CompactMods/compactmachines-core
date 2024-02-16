@@ -1,6 +1,7 @@
 package dev.compactmods.machines.api.room;
 
 import dev.compactmods.machines.api.room.registration.IRoomBuilder;
+import net.minecraft.world.phys.AABB;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -9,17 +10,24 @@ import java.util.stream.Stream;
 
 public interface IRoomRegistrar {
 
+    AABB getNextBoundaries(RoomTemplate template);
+
+    IRoomBuilder builder();
+
     default RoomInstance createNew(RoomTemplate template, UUID owner) {
         return createNew(template, owner, override -> {});
     }
 
     default RoomInstance createNew(RoomTemplate template, UUID owner, Consumer<IRoomBuilder> override) {
-        return createNew(builder -> builder.defaultMachineColor(template.color())
+        final Consumer<IRoomBuilder> preOverride = builder -> builder.defaultMachineColor(template.color())
                 .owner(owner)
-                .dimensions(template.dimensions()));
-    }
+                .boundaries(getNextBoundaries(template));
 
-    RoomInstance createNew(Consumer<IRoomBuilder> build);
+        // Make builder, set template defaults, then allow overrides
+        final var b = builder();
+        preOverride.andThen(override).accept(b);
+        return b.build();
+    }
 
     boolean isRegistered(String room);
 

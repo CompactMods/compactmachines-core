@@ -7,6 +7,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Objects;
 
@@ -16,8 +18,8 @@ import static dev.compactmods.machines.api.Constants.MOD_ID;
  * Template structure for creating a new Compact Machine room. These can be added and removed from the registry
  * at any point, so persistent data must be stored outside these instances.
  *
- * @param dimensions The internal dimensions of the room when it is created.
- * @param color The color of the machine blocks created for this template.
+ * @param dimensions      The internal dimensions of the room when it is created.
+ * @param color           The color of the machine blocks created for this template.
  * @param prefillTemplate A template (structure) file reference, if specified this will fill the new room post-generation
  */
 public record RoomTemplate(Vec3i dimensions, int color, ResourceLocation prefillTemplate) {
@@ -37,16 +39,8 @@ public record RoomTemplate(Vec3i dimensions, int color, ResourceLocation prefill
         this(new Vec3i(cubicSize, cubicSize, cubicSize), color, NO_TEMPLATE);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RoomTemplate that = (RoomTemplate) o;
-        return color == that.color && Objects.equals(dimensions, that.dimensions);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(dimensions, color);
+    public AABB getZeroBoundaries() {
+        return AABB.ofSize(Vec3.ZERO, dimensions.getX(), dimensions.getY(), dimensions.getZ())
+                .move(0, dimensions.getY() / 2f, 0);
     }
 }

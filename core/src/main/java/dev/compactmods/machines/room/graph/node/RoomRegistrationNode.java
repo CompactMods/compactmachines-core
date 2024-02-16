@@ -2,6 +2,7 @@ package dev.compactmods.machines.room.graph.node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.compactmods.machines.api.room.RoomInstance;
 import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.feather.node.Node;
 import net.minecraft.core.UUIDUtil;
@@ -21,14 +22,28 @@ public record RoomRegistrationNode(UUID id, Data data) implements Node<RoomRegis
             Data.CODEC.fieldOf("data").forGetter(RoomRegistrationNode::data)
     ).apply(i, RoomRegistrationNode::new));
 
-    public record Data(String code, int defaultMachineColor, Vec3i dimensions, Vec3 center) {
+    public record Data(String code, int defaultMachineColor, AABB boundaries) {
         public static final Codec<Data> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.fieldOf("code").forGetter(Data::code),
                 Codec.INT.fieldOf("color").forGetter(Data::defaultMachineColor),
-                Vec3i.CODEC.fieldOf("dimensions").forGetter(Data::dimensions),
-                Vec3.CODEC.fieldOf("center").forGetter(Data::center)
+                Vec3.CODEC.fieldOf("dimensions").forGetter(Data::dimensions),
+                Vec3.CODEC.fieldOf("center").forGetter(x -> x.boundaries.getCenter())
         ).apply(i, Data::new));
+
+        public Data(RoomInstance inst) {
+            this(inst.code(), inst.defaultMachineColor(), inst.boundaries().outerBounds());
+        }
+
+        private Vec3 dimensions() {
+            return new Vec3(boundaries.getXsize(), boundaries.getYsize(), boundaries.getZsize());
+        }
+
+        private Data(String code, int defaultMachineColor, Vec3 dimensions, Vec3 center) {
+            this(code, defaultMachineColor, AABB.ofSize(center, dimensions.x(), dimensions.y(), dimensions.z()));
+        }
     }
+
+
 
     public String code() {
         return data.code;
@@ -39,22 +54,7 @@ public record RoomRegistrationNode(UUID id, Data data) implements Node<RoomRegis
     }
 
     @Override
-    public Vec3i dimensions() {
-        return data.dimensions;
-    }
-
-    @Override
-    public Vec3 center() {
-        return data.center;
-    }
-
-    @Override
-    public AABB innerBounds() {
-        return AABB.ofSize(data.center, data.dimensions.getX() - 2, data.dimensions.getY() - 2, data.dimensions.getZ() - 2);
-    }
-
-    @Override
     public AABB outerBounds() {
-        return AABB.ofSize(data.center, data.dimensions.getX(), data.dimensions.getY(), data.dimensions.getZ());
+        return data.boundaries;
     }
 }

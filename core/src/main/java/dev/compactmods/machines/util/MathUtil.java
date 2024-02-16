@@ -66,12 +66,12 @@ public class MathUtil {
         return new Vec3i(x, 0, y);
     }
 
-    public static BlockPos getCenterWithY(ChunkPos chunk, int y) {
-        return chunk.getWorldPosition()
-                .offset(new BlockPos(8, y, 8));
+    public static Vec3 getCenterWithY(ChunkPos chunk, int y) {
+        return Vec3.atBottomCenterOf(chunk.getWorldPosition()
+                .offset(new BlockPos(8, y, 8)));
     }
 
-    public static BlockPos getCenterWithY(Vec3i regionIndex, int y) {
+    public static Vec3 getCenterWithY(Vec3i regionIndex, int y) {
         ChunkPos chunk = new ChunkPos(
                 regionIndex.getX() * 64,
                 regionIndex.getZ() * 64);
