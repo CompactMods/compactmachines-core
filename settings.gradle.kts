@@ -1,9 +1,14 @@
 dependencyResolutionManagement {
     versionCatalogs.create("libraries") {
-        library("feather", "dev.compactmods:feather:0.1.6")
-        library("jnanoid", "com.aventrix.jnanoid:jnanoid:2.0.0")
+        library("feather", "dev.compactmods", "feather")
+                .versionRef("feather")
+
+        library("jnanoid", "com.aventrix.jnanoid", "jnanoid")
+                .versionRef("jnanoid")
 
         version("minecraft", "1.20.4")
+        version("feather", "[0.1.8, 2.0)")
+        version("jnanoid", "[2.0.0, 3)")
     }
 }
 
@@ -31,7 +36,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version("0.5.0")
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
 }
 
 include("core")
