@@ -8,7 +8,7 @@ import net.minecraft.util.FastColor;
 /**
  * The pre-CM6 built-in room templates. One should not assume these templates are active at any time.
  */
-public enum LegacySizedTemplates {
+public enum BuiltInRoomTemplate {
     EMPTY_TINY("tiny", 3, FastColor.ARGB32.color(255, 201, 91, 19)),
     EMPTY_SMALL("small", 5, FastColor.ARGB32.color(255, 212, 210, 210)),
     EMPTY_NORMAL("normal", 7, FastColor.ARGB32.color(255, 251, 242, 54)),
@@ -19,7 +19,7 @@ public enum LegacySizedTemplates {
     private final ResourceLocation id;
     private final RoomTemplate template;
 
-    LegacySizedTemplates(String id, int size, int color) {
+    BuiltInRoomTemplate(String id, int size, int color) {
         this.id = new ResourceLocation(Constants.MOD_ID, id);
         this.template = new RoomTemplate(size, color);
     }
