@@ -1,5 +1,8 @@
 package dev.compactmods.machines.room.spawn;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.machines.api.room.spawn.IRoomSpawn;
 import dev.compactmods.machines.api.room.spawn.IRoomSpawnManager;
@@ -7,49 +10,65 @@ import dev.compactmods.machines.api.room.spawn.IRoomSpawns;
 import dev.compactmods.machines.api.Constants;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
+import dev.compactmods.machines.data.CodecBackedSavedData;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SpawnManager extends SavedData implements IRoomSpawnManager {
+public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements IRoomSpawnManager {
+
+    private final Logger LOGS = LogManager.getLogger();
+
+    private static final UnboundedMapCodec<UUID, RoomSpawn> PLAYER_SPAWNS_CODEC = Codec.unboundedMap(UUIDUtil.CODEC, RoomSpawn.CODEC);
+    private static final Codec<SpawnManager> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Codec.STRING.fieldOf("roomCode").forGetter(x -> x.roomCode),
+            PLAYER_SPAWNS_CODEC.fieldOf("player_spawns").forGetter(x -> x.playerSpawns),
+            RoomSpawn.CODEC.fieldOf("default_spawn").forGetter(x -> x.defaultSpawn)
+    ).apply(inst, SpawnManager::new));
 
     private final String roomCode;
-    private IRoomBoundaries roomBounds;
     private RoomSpawn defaultSpawn;
     private final Map<UUID, RoomSpawn> playerSpawns;
+    private AABB roomBounds;
 
     public SpawnManager(String roomCode) {
-        this.roomCode = roomCode;
-        this.playerSpawns = new HashMap<>();
+        this(roomCode, Collections.emptyMap(), null);
+        this.defaultSpawn = null;
     }
 
-    private static Factory<SpawnManager> factory(MinecraftServer server, String roomCode) {
-        return new SavedData.Factory<>(() -> new SpawnManager(roomCode), tag -> {
-            final var inst = new SpawnManager(roomCode);
-            return SpawnManager.Serializer.loadInto(inst, tag);
-        }, null);
+    public SpawnManager(String roomCode, Map<UUID, RoomSpawn> playerSpawns, RoomSpawn defaultSpawn) {
+        super(CodecBackedSavedData.codecFactory(CODEC, () -> new SpawnManager(roomCode)));
+        this.roomCode = roomCode;
+        this.playerSpawns = new HashMap<>(playerSpawns);
+        this.defaultSpawn = defaultSpawn;
     }
 
     public static SpawnManager forRoom(MinecraftServer server, String roomCode, IRoomBoundaries roomBounds) throws MissingDimensionException {
         String roomFilename = Constants.MOD_ID + "_room_" + roomCode;
         var manager = CompactDimension.forServer(server)
                 .getDataStorage()
-                .computeIfAbsent(factory(server, roomCode), roomFilename);
+                .computeIfAbsent(CodecBackedSavedData.codecFactory(CODEC, () -> new SpawnManager(roomCode)).asSDFactory(), roomFilename);
 
-        manager.setBoundaries(roomBounds);
+        manager.setBoundaries(roomBounds.innerBounds());
         manager.setDefaultSpawn(roomBounds.defaultSpawn(), Vec2.ZERO);
         return manager;
     }
 
-    private void setBoundaries(IRoomBoundaries roomBounds) {
+    private void setBoundaries(AABB roomBounds) {
         this.roomBounds = roomBounds;
     }
 
@@ -72,16 +91,13 @@ public class SpawnManager extends SavedData implements IRoomSpawnManager {
 
     @Override
     public void setPlayerSpawn(UUID player, Vec3 location, Vec2 rotation) {
-        if(playerSpawns.containsKey(player))
+        if(!roomBounds.contains(location))
+            return;
+
+        if (playerSpawns.containsKey(player))
             playerSpawns.replace(player, new RoomSpawn(location, rotation));
         else
             playerSpawns.put(player, new RoomSpawn(location, rotation));
-    }
-
-    @Override
-    @NotNull
-    public CompoundTag save(@NotNull CompoundTag tag) {
-        return tag;
     }
 
     private record RoomSpawns(RoomSpawn defaultSpawn, Map<UUID, RoomSpawn> playerSpawnsSnapshot) implements IRoomSpawns {
@@ -89,13 +105,6 @@ public class SpawnManager extends SavedData implements IRoomSpawnManager {
         @Override
         public Optional<IRoomSpawn> forPlayer(UUID player) {
             return Optional.ofNullable(playerSpawnsSnapshot.get(player));
-        }
-    }
-
-    private static class Serializer {
-
-        public static SpawnManager loadInto(SpawnManager inst, CompoundTag tag) {
-            return inst;
         }
     }
 }

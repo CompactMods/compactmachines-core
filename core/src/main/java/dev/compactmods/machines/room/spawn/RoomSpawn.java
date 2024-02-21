@@ -13,7 +13,4 @@ public record RoomSpawn(Vec3 position, Vec2 rotation) implements IRoomSpawn {
             CodecExtensions.VEC2.fieldOf("rotation").forGetter(RoomSpawn::rotation)
     ).apply(i, RoomSpawn::new));
 
-    public RoomSpawn(RoomSpawn data) {
-        this(data.position, data.rotation);
-    }
 }
