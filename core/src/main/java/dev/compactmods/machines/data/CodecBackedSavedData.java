@@ -10,44 +10,36 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-public class CodecBackedSavedData<T extends SavedData> extends SavedData {
+public abstract class CodecBackedSavedData<D extends SavedData> extends SavedData {
 
     private static final Logger LOGS = LogManager.getLogger();
 
-    protected final CodecWrappedFactory<T> factory;
+    protected final CodecWrappedSavedData<CodecBackedSavedData<D>, D> factory;
 
-    public CodecBackedSavedData(CodecWrappedFactory<T> factory) {
-        this.factory = factory;
-    }
-
-    public static <T extends SavedData> CodecWrappedFactory<T> codecFactory(Codec<T> codec, Supplier<T> factory) {
-        return new CodecWrappedFactory<>(codec, factory);
+    public CodecBackedSavedData(Codec<D> codec, Supplier<D> factory) {
+        this.factory = new CodecWrappedSavedData<>(codec, factory);
     }
 
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
-        return factory.save(compoundTag, (T) this);
+        final var data = factory.codec
+                .encodeStart(NbtOps.INSTANCE, (D) this)
+                .getOrThrow(false, LOGS::error);
+
+        if (data instanceof CompoundTag dataTag) {
+            compoundTag.merge(dataTag);
+        }
+
+        return compoundTag;
     }
 
-    public record CodecWrappedFactory<T extends SavedData>(Codec<T> codec, Supplier<T> factory) {
+    public record CodecWrappedSavedData<T extends CodecBackedSavedData<D>, D extends SavedData>(Codec<D> codec, Supplier<D> factory) {
 
-        public SavedData.Factory<T> asSDFactory() {
+        public SavedData.Factory<D> sd() {
             return new SavedData.Factory<>(factory, this::load, null);
         }
 
-        @NotNull
-        public CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull T instance) {
-            final var data = codec.encodeStart(NbtOps.INSTANCE, instance)
-                    .getOrThrow(false, LOGS::error);
-
-            if (data instanceof CompoundTag dataTag) {
-                compoundTag.merge(dataTag);
-            }
-
-            return compoundTag;
-        }
-
-        public T load(CompoundTag tag) {
+        public D load(CompoundTag tag) {
             return codec.parse(NbtOps.INSTANCE, tag).getOrThrow(false, LOGS::error);
         }
     }

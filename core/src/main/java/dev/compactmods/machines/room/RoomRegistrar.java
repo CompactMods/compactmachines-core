@@ -41,13 +41,13 @@ public class RoomRegistrar extends CodecBackedSavedData<RoomRegistrar> implement
     private final Map<String, RoomRegistrationNode> registrationNodes;
 
     private RoomRegistrar() {
-        super(CodecBackedSavedData.codecFactory(CODEC, RoomRegistrar::new));
+        super(CODEC, RoomRegistrar::new);
         this.graph = new MemoryGraph();
         this.registrationNodes = new HashMap<>();
     }
 
     private RoomRegistrar(List<RoomRegistrationNode> regNodes) {
-        super(CodecBackedSavedData.codecFactory(CODEC, RoomRegistrar::new));
+        super(CODEC, RoomRegistrar::new);
         this.graph = new MemoryGraph();
         this.registrationNodes = new HashMap<>();
         regNodes.forEach(this::registerDirty);
@@ -56,7 +56,7 @@ public class RoomRegistrar extends CodecBackedSavedData<RoomRegistrar> implement
     public static RoomRegistrar forServer(MinecraftServer server) throws MissingDimensionException {
         return CompactDimension.forServer(server)
                 .getDataStorage()
-                .computeIfAbsent(CodecBackedSavedData.codecFactory(CODEC, RoomRegistrar::new).asSDFactory(), DATA_NAME);
+                .computeIfAbsent(new CodecWrappedSavedData<>(CODEC, RoomRegistrar::new).sd(), DATA_NAME);
     }
 
     @Override

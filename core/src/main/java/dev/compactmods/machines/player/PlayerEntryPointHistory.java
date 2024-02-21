@@ -1,6 +1,8 @@
 package dev.compactmods.machines.player;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Keyable;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.feather.edge.impl.EmptyEdge;
@@ -18,6 +20,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -44,12 +47,11 @@ public class PlayerEntryPointHistory extends CodecBackedSavedData<PlayerEntryPoi
 
     public static final Codec<PlayerEntryPointHistory> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.fieldOf("max_depth").forGetter(x -> x.maxDepth),
-            Codec.unboundedMap(UUIDUtil.CODEC, PlayerRoomHistoryEntry.CODEC.listOf())
+            Codec.unboundedMap(UUIDUtil.STRING_CODEC, PlayerRoomHistoryEntry.CODEC.listOf())
                             .fieldOf("history")
                             .forGetter(PlayerEntryPointHistory::playerRoomHistory)
     ).apply(inst, PlayerEntryPointHistory::new));
-
-    private static final CodecWrappedFactory<PlayerEntryPointHistory> DEFAULT_FACTORY = factory(DEFAULT_MAX_DEPTH);
+    public static final Factory<PlayerEntryPointHistory> FACTORY = new CodecWrappedSavedData<>(CODEC, () -> new PlayerEntryPointHistory(DEFAULT_MAX_DEPTH)).sd();
 
     private final MemoryGraph graph;
     private final int maxDepth;
@@ -75,7 +77,7 @@ public class PlayerEntryPointHistory extends CodecBackedSavedData<PlayerEntryPoi
     }
 
     private PlayerEntryPointHistory(int maxDepth, Map<UUID, List<PlayerRoomHistoryEntry>> history) {
-        super(factory(maxDepth));
+        super(CODEC, FACTORY.constructor());
         this.graph = new MemoryGraph();
         this.maxDepth = maxDepth;
         this.roomNodes = new HashMap<>();
@@ -93,22 +95,11 @@ public class PlayerEntryPointHistory extends CodecBackedSavedData<PlayerEntryPoi
         this.setDirty();
     }
 
-    private static CodecBackedSavedData.CodecWrappedFactory<PlayerEntryPointHistory> factory(int maxDepth) {
-        return CodecBackedSavedData.codecFactory(CODEC, () -> new PlayerEntryPointHistory(maxDepth));
-    }
-
     public static PlayerEntryPointHistory forServer(MinecraftServer server) throws MissingDimensionException {
         return CompactDimension.forServer(server)
                 .getDataStorage()
-                .computeIfAbsent(DEFAULT_FACTORY.asSDFactory(), DATA_NAME);
+                .computeIfAbsent(FACTORY, DATA_NAME);
     }
-
-    public static PlayerEntryPointHistory forServer(MinecraftServer server, int maxDepth) throws MissingDimensionException {
-        return CompactDimension.forServer(server)
-                .getDataStorage()
-                .computeIfAbsent(factory(maxDepth).asSDFactory(), DATA_NAME);
-    }
-
 
     private static PlayerRoomHistoryEntry fromEdge(PlayerRoomEntryEdge edge) {
         return new PlayerRoomHistoryEntry(edge.target().get().code(), edge.entryTime(), edge.source().get().data());

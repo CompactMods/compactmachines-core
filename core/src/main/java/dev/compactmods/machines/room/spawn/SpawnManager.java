@@ -51,7 +51,7 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
     }
 
     public SpawnManager(String roomCode, Map<UUID, RoomSpawn> playerSpawns, RoomSpawn defaultSpawn) {
-        super(CodecBackedSavedData.codecFactory(CODEC, () -> new SpawnManager(roomCode)));
+        super(CODEC, () -> new SpawnManager(roomCode));
         this.roomCode = roomCode;
         this.playerSpawns = new HashMap<>(playerSpawns);
         this.defaultSpawn = defaultSpawn;
@@ -61,7 +61,7 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
         String roomFilename = Constants.MOD_ID + "_room_" + roomCode;
         var manager = CompactDimension.forServer(server)
                 .getDataStorage()
-                .computeIfAbsent(CodecBackedSavedData.codecFactory(CODEC, () -> new SpawnManager(roomCode)).asSDFactory(), roomFilename);
+                .computeIfAbsent(new CodecWrappedSavedData<>(CODEC, () -> new SpawnManager(roomCode)).sd(), roomFilename);
 
         manager.setBoundaries(roomBounds.innerBounds());
         manager.setDefaultSpawn(roomBounds.defaultSpawn(), Vec2.ZERO);
