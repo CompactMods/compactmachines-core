@@ -37,4 +37,9 @@ public record GlobalPosWithRotation(ResourceKey<Level> dimension, Vec3 position,
     public static GlobalPosWithRotation fromPlayer(Player player) {
         return new GlobalPosWithRotation(player.level().dimension(), player.position(), new Vec2(player.xRotO, player.yRotO));
     }
+
+    @Override
+    public String toString() {
+        return "GlobalPosWRot {%s; pos = %s, rot = %s".formatted(dimension.location(), position, rotation);
+    }
 }

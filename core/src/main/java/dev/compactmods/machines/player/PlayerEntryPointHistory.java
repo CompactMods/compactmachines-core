@@ -1,43 +1,55 @@
 package dev.compactmods.machines.player;
 
-import com.google.common.base.Predicate;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.feather.MemoryGraph;
-import dev.compactmods.feather.edge.GraphEdge;
 import dev.compactmods.feather.edge.impl.EmptyEdge;
 import dev.compactmods.feather.node.Node;
+import dev.compactmods.feather.traversal.GraphNodeTransformationFunction;
 import dev.compactmods.machines.api.Constants;
-import dev.compactmods.machines.api.codec.NbtListCollector;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import dev.compactmods.machines.api.room.RoomApi;
+import dev.compactmods.machines.api.room.history.PlayerRoomHistoryEntry;
 import dev.compactmods.machines.api.room.history.RoomEntryPoint;
+import dev.compactmods.machines.data.CodecBackedSavedData;
 import dev.compactmods.machines.room.graph.node.RoomReferenceNode;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.ref.WeakReference;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayDeque;
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Deque;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class PlayerEntryPointHistory extends SavedData {
+// TODO: Global access via PlayerHistoryApi, similar to RoomApi
+public class PlayerEntryPointHistory extends CodecBackedSavedData<PlayerEntryPointHistory> {
 
     public static final String DATA_NAME = Constants.MOD_ID + "_player_history";
 
+    private static final Logger LOGS = LogManager.getLogger();
+
+    private static final int DEFAULT_MAX_DEPTH = 5;
+
+    public static final Codec<PlayerEntryPointHistory> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Codec.INT.fieldOf("max_depth").forGetter(x -> x.maxDepth),
+            Codec.unboundedMap(UUIDUtil.CODEC, PlayerRoomHistoryEntry.CODEC.listOf())
+                            .fieldOf("history")
+                            .forGetter(PlayerEntryPointHistory::playerRoomHistory)
+    ).apply(inst, PlayerEntryPointHistory::new));
+
+    private static final CodecWrappedFactory<PlayerEntryPointHistory> DEFAULT_FACTORY = factory(DEFAULT_MAX_DEPTH);
 
     private final MemoryGraph graph;
     private final int maxDepth;
@@ -45,60 +57,108 @@ public class PlayerEntryPointHistory extends SavedData {
     private final HashMap<String, RoomReferenceNode> roomNodes;
     private final HashMap<UUID, PlayerReferenceNode> playerNodes;
     private final HashMap<UUID, PlayerEntryPointNode> latestEntryPoints;
-    private final java.util.function.Predicate<String> roomValidator;
 
-    public PlayerEntryPointHistory(int maxDepth, java.util.function.Predicate<String> roomValidator) {
-        this.roomValidator = roomValidator;
+    private static final GraphNodeTransformationFunction<PlayerReferenceNode, Stream<PlayerRoomHistoryEntry>> PLAYER_TO_HISTORY =
+            (graph, input) -> graph.outboundEdges(input, PlayerEntryPointNode.class)
+                    .flatMap(e -> graph.outboundEdges(e.target().get(), RoomReferenceNode.class, PlayerRoomEntryEdge.class))
+                    .map(PlayerEntryPointHistory::fromEdge)
+                    .sorted(Comparator.comparing(PlayerRoomHistoryEntry::instant).reversed());
+
+    private static final GraphNodeTransformationFunction<PlayerReferenceNode, Stream<PlayerEntryPointNode>> PLAYER_TO_HISTORY_NODES =
+            (graph, input) -> graph.outboundEdges(input, PlayerEntryPointNode.class)
+                    .flatMap(e -> graph.outboundEdges(e.target().get(), RoomReferenceNode.class, PlayerRoomEntryEdge.class))
+                    .sorted(Comparator.comparing(PlayerRoomEntryEdge::entryTime).reversed())
+                    .map(e -> e.source().get());
+
+    public PlayerEntryPointHistory(int maxDepth) {
+        this(maxDepth, Collections.emptyMap());
+    }
+
+    private PlayerEntryPointHistory(int maxDepth, Map<UUID, List<PlayerRoomHistoryEntry>> history) {
+        super(factory(maxDepth));
         this.graph = new MemoryGraph();
         this.maxDepth = maxDepth;
         this.roomNodes = new HashMap<>();
         this.playerNodes = new HashMap<>();
         this.latestEntryPoints = new HashMap<>();
+
+        for(var entry : history.entrySet()) {
+            LOGS.debug("Loading history for player: " + entry.getKey());
+            entry.getValue()
+                    .stream()
+                    .sorted(Comparator.comparing(PlayerRoomHistoryEntry::instant))
+                    .forEach(hist -> enterRoom(entry.getKey(), hist));
+        }
+
+        this.setDirty();
+    }
+
+    private static CodecBackedSavedData.CodecWrappedFactory<PlayerEntryPointHistory> factory(int maxDepth) {
+        return CodecBackedSavedData.codecFactory(CODEC, () -> new PlayerEntryPointHistory(maxDepth));
+    }
+
+    public static PlayerEntryPointHistory forServer(MinecraftServer server) throws MissingDimensionException {
+        return CompactDimension.forServer(server)
+                .getDataStorage()
+                .computeIfAbsent(DEFAULT_FACTORY.asSDFactory(), DATA_NAME);
     }
 
     public static PlayerEntryPointHistory forServer(MinecraftServer server, int maxDepth) throws MissingDimensionException {
         return CompactDimension.forServer(server)
                 .getDataStorage()
-                .computeIfAbsent(factory(maxDepth), DATA_NAME);
+                .computeIfAbsent(factory(maxDepth).asSDFactory(), DATA_NAME);
     }
 
-    private static SavedData.Factory<PlayerEntryPointHistory> factory(int maxDepth) {
-        Predicate<String> isRegistered = RoomApi.registrar()::isRegistered;
-        return new SavedData.Factory<>(() -> new PlayerEntryPointHistory(maxDepth, isRegistered), Serializer::load, null);
+
+    private static PlayerRoomHistoryEntry fromEdge(PlayerRoomEntryEdge edge) {
+        return new PlayerRoomHistoryEntry(edge.target().get().code(), edge.entryTime(), edge.source().get().data());
     }
 
-    private Optional<PlayerEntryPointNode> getPreviousEntryPoint(PlayerEntryPointNode node) {
-        return graph.inboundEdges(node, PlayerEntryPointNode.class)
-                .findFirst()
-                .map(e -> e.source().get());
-    }
-
-    public Deque<RoomEntryPoint> history(Player player, int depth) {
+    public void popHistory(Player player, int steps) {
         final var playerNode = playerNodes.get(player.getUUID());
-        if(playerNode == null)
-            return new ArrayDeque<>(0);
+        if (playerNode == null) return;
 
-        final var latest = latestEntryPoints.get(player.getUUID());
-        if(depth <= 1)
-            return new ArrayDeque<>(Collections.singleton(latest.data()));
+        var historyNodes = graph.transformFunc(PLAYER_TO_HISTORY_NODES, playerNode)
+                .limit(steps)
+                .collect(Collectors.toSet());
 
-        Deque<RoomEntryPoint> entries = new ArrayDeque<>(depth);
+        historyNodes.forEach(graph::removeNode);
 
-        PlayerEntryPointNode needle = latest;
-        for(int d = 0; d < depth; d++) {
-            var prev = getPreviousEntryPoint(needle);
-            if(prev.isEmpty())
-                return entries;
+        final var newLatest = graph.transformFunc(PLAYER_TO_HISTORY_NODES, playerNode).findFirst();
+        newLatest.ifPresentOrElse(
+                l -> latestEntryPoints.replace(player.getUUID(), l),
+                () -> latestEntryPoints.remove(player.getUUID()));
 
-            needle = prev.get();
-            entries.push(needle.data());
-        }
-
-        return entries;
+        this.setDirty();
     }
 
-    public RoomEntryResult enterRoom(Player player, String roomCode, RoomEntryPoint entryPoint) {
-        if (!roomValidator.test(roomCode))
+    public Optional<PlayerRoomHistoryEntry> lastHistory(Player player) {
+        final var lastEntry = latestEntryPoints.get(player.getUUID());
+        return graph.outboundEdges(lastEntry, RoomReferenceNode.class, PlayerRoomEntryEdge.class)
+                .max(Comparator.comparing(PlayerRoomEntryEdge::entryTime))
+                .map(PlayerEntryPointHistory::fromEdge);
+    }
+
+    public Stream<PlayerRoomHistoryEntry> history(Player player) {
+        return history(player.getUUID());
+    }
+
+    public Stream<PlayerRoomHistoryEntry> history(UUID player) {
+        final var playerNode = playerNodes.get(player);
+        if (playerNode == null)
+            return Stream.empty();
+
+        return graph.transformFunc(PLAYER_TO_HISTORY, playerNode);
+    }
+
+    private Map<UUID, List<PlayerRoomHistoryEntry>> playerRoomHistory() {
+        return playerNodes.keySet()
+                .stream()
+                .collect(Collectors.toMap(pid -> pid, pid -> history(pid).toList()));
+    }
+
+    public RoomEntryResult enterRoom(UUID player, PlayerRoomHistoryEntry history) {
+        if (!RoomApi.isValidRoomCode(history.roomCode()))
             return RoomEntryResult.FAILED_ROOM_INVALID;
 
         PlayerReferenceNode playerNode = getOrCreatePlayer(player);
@@ -107,24 +167,28 @@ public class PlayerEntryPointHistory extends SavedData {
         if (depth >= maxDepth)
             return RoomEntryResult.FAILED_TOO_FAR_DOWN;
 
-        RoomReferenceNode roomNode = getOrCreateRoom(roomCode);
+        RoomReferenceNode roomNode = getOrCreateRoom(history.roomCode());
 
-        PlayerEntryPointNode entryNode = new PlayerEntryPointNode(UUID.randomUUID(), entryPoint);
-        if(latestEntryPoints.containsKey(player.getUUID())) {
-            final var prev = latestEntryPoints.replace(player.getUUID(), entryNode);
-            if(prev != null)
+        PlayerEntryPointNode entryNode = new PlayerEntryPointNode(UUID.randomUUID(), history.entryPoint());
+        if (latestEntryPoints.containsKey(player)) {
+            final var prev = latestEntryPoints.replace(player, entryNode);
+            if (prev != null)
                 graph.connectNodes(prev, entryNode, new EmptyEdge<>(prev, entryNode));
         } else {
-            latestEntryPoints.put(player.getUUID(), entryNode);
+            latestEntryPoints.put(player, entryNode);
         }
 
         // PlayerReferenceNode ---> RoomEntryPointNode
         // RoomEntryPointNode -[PlayerRoomEntryEdge]-> RoomReferenceNode
         graph.connectNodes(playerNode, entryNode, new EmptyEdge<>(playerNode, entryNode));
-        graph.connectNodes(entryNode, roomNode, new PlayerRoomEntryEdge(entryNode, roomNode));
+        graph.connectNodes(entryNode, roomNode, new PlayerRoomEntryEdge(entryNode, roomNode, history.instant()));
 
         this.setDirty();
         return RoomEntryResult.SUCCESS;
+    }
+
+    public RoomEntryResult enterRoom(Player player, String roomCode, RoomEntryPoint entryPoint) {
+        return enterRoom(player.getUUID(), new PlayerRoomHistoryEntry(roomCode, Instant.now(), entryPoint));
     }
 
     @NotNull
@@ -139,9 +203,9 @@ public class PlayerEntryPointHistory extends SavedData {
     }
 
     @NotNull
-    private PlayerReferenceNode getOrCreatePlayer(Player player) {
-        return playerNodes.computeIfAbsent(player.getUUID(), (o) -> {
-            var node = new PlayerReferenceNode(UUID.randomUUID(), player.getUUID());
+    private PlayerReferenceNode getOrCreatePlayer(UUID player) {
+        return playerNodes.computeIfAbsent(player, (o) -> {
+            var node = new PlayerReferenceNode(UUID.randomUUID(), player);
             graph.addNode(node);
 
             this.setDirty();
@@ -149,14 +213,8 @@ public class PlayerEntryPointHistory extends SavedData {
         });
     }
 
-    @Override
-    @NotNull
-    public CompoundTag save(@NotNull CompoundTag compoundTag) {
-        return Serializer.save(this, compoundTag);
-    }
-
     public void clearHistory(ServerPlayer player) {
-        if(!playerNodes.containsKey(player.getUUID()))
+        if (!playerNodes.containsKey(player.getUUID()))
             return;
 
         final var playerNode = playerNodes.get(player.getUUID());
@@ -171,88 +229,4 @@ public class PlayerEntryPointHistory extends SavedData {
         latestEntryPoints.remove(player.getUUID());
         setDirty();
     }
-
-
-
-    private static class Serializer {
-
-        private static final Logger LOGS = LogManager.getLogger();
-        public static final String NBT_MAX_DEPTH = "max_depth";
-
-        @NotNull
-        public static CompoundTag save(@NotNull PlayerEntryPointHistory instance, @NotNull CompoundTag compoundTag) {
-            compoundTag.putInt(NBT_MAX_DEPTH, instance.maxDepth);
-
-            final var playerData = instance.playerNodes.values()
-                    .stream()
-                    .map((PlayerReferenceNode player) -> writePlayerEntry(instance, player))
-                    .collect(NbtListCollector.toNbtList());
-
-            compoundTag.put("player_history", playerData);
-            return compoundTag;
-        }
-
-        private static CompoundTag writePlayerEntry(PlayerEntryPointHistory history, PlayerReferenceNode playerReferenceNode) {
-
-            // PlayerReferenceNode ---> RoomEntryPointNode
-            // RoomEntryPointNode -[PlayerRoomEntryEdge]-> RoomReferenceNode
-
-            CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("player_id", playerReferenceNode.playerID());
-
-            final var latestEntry = history.latestEntryPoints.get(playerReferenceNode.playerID());
-
-            // early exit if no history
-            if (latestEntry == null) return playerTag;
-
-            final var historyList = writePlayerHistory(history, playerReferenceNode, playerTag);
-            writeHistoryToRooms(history, historyList, playerTag);
-
-            return playerTag;
-        }
-
-        private static List<PlayerEntryPointNode> writePlayerHistory(PlayerEntryPointHistory history, PlayerReferenceNode playerReferenceNode, CompoundTag playerTag) {
-            final var historyList = history.graph.outboundEdges(playerReferenceNode, PlayerEntryPointNode.class)
-                    .map(GraphEdge::target)
-                    .map(WeakReference::get)
-                    .filter(Objects::nonNull)
-                    .toList();
-
-            final var nbtHistory = PlayerEntryPointNode.CODEC.listOf()
-                    .encodeStart(NbtOps.INSTANCE, historyList)
-                    .getOrThrow(false, LOGS::error);
-
-            playerTag.put("history", nbtHistory);
-
-            return historyList;
-        }
-
-        private static void writeHistoryToRooms(PlayerEntryPointHistory history, List<PlayerEntryPointNode> entryPoints, CompoundTag playerTag) {
-            final var entrypoints = entryPoints.stream()
-                    .map(epn -> history.graph.outboundEdges(epn, RoomReferenceNode.class, PlayerRoomEntryEdge.class).findFirst())
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .toList();
-
-            ListTag list = new ListTag();
-            entrypoints.forEach(edge -> {
-                CompoundTag entrypointTag = new CompoundTag();
-                entrypointTag.putUUID("entry", edge.source().get().id());
-                entrypointTag.putUUID("room", edge.target().get().id());
-                entrypointTag.putString("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(edge.entryTime()));
-                list.add(entrypointTag);
-            });
-
-            playerTag.put("history_rooms", list);
-        }
-
-        @NotNull
-        public static PlayerEntryPointHistory load(CompoundTag tag) {
-            final int maxDepth = tag.getInt(NBT_MAX_DEPTH);
-            final var inst = new PlayerEntryPointHistory(maxDepth, RoomApi.registrar()::isRegistered);
-
-            return inst;
-        }
-    }
 }
-

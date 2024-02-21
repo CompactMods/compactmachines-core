@@ -13,7 +13,11 @@ public record PlayerRoomEntryEdge(WeakReference<PlayerEntryPointNode> source, We
         implements GraphValueEdge<PlayerEntryPointNode, RoomReferenceNode, Instant> {
 
     public PlayerRoomEntryEdge(PlayerEntryPointNode entryNode, RoomReferenceNode roomNode) {
-        this(new WeakReference<>(entryNode), new WeakReference<>(roomNode), Instant.now());
+        this(entryNode, roomNode, Instant.now());
+    }
+
+    public PlayerRoomEntryEdge(PlayerEntryPointNode entryNode, RoomReferenceNode roomNode, Instant instant) {
+        this(new WeakReference<>(entryNode), new WeakReference<>(roomNode), instant);
     }
 
     @Override
