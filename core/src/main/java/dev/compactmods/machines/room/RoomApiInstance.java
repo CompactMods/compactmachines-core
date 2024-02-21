@@ -13,7 +13,10 @@ import dev.compactmods.machines.room.spawn.RoomSpawnManagers;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.function.Predicate;
+
 public record RoomApiInstance(
+        Predicate<String> roomCodeValidator,
         IRoomRegistrar registrar,
         IRoomOwners owners,
         IRoomSpawnManagers spawnManagers,
@@ -29,7 +32,7 @@ public record RoomApiInstance(
         final var gcm = new GraphChunkManager();
         registrar.allRooms().forEach(inst -> gcm.calculateChunks(inst.code(), inst.boundaries()));
 
-        return new RoomApiInstance(registrar, owners, spawnManager, gcm);
+        return new RoomApiInstance(registrar::isRegistered, registrar, owners, spawnManager, gcm);
     }
 
     @Override

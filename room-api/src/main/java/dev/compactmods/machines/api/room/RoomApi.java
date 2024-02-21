@@ -12,6 +12,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class RoomApi {
 
@@ -23,6 +24,14 @@ public class RoomApi {
      */
     @ApiStatus.Internal
     public static IRoomApi INSTANCE;
+
+    public static Predicate<String> roomCodeValidator() {
+        return INSTANCE.roomCodeValidator();
+    }
+
+    public static boolean isValidRoomCode(String roomCode) {
+        return INSTANCE.roomCodeValidator().test(roomCode);
+    }
 
     /**
      * Fetches a room instance from the registrar.
