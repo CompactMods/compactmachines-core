@@ -1,5 +1,6 @@
 package dev.compactmods.machines.room;
 
+import com.mojang.serialization.Codec;
 import dev.compactmods.machines.api.room.IRoomRegistrar;
 import dev.compactmods.machines.api.room.RoomApi;
 import dev.compactmods.machines.api.room.RoomInstance;
@@ -9,15 +10,11 @@ import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.machines.api.Constants;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
+import dev.compactmods.machines.data.CodecBackedSavedData;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import dev.compactmods.machines.util.MathUtil;
-import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -30,32 +27,36 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class RoomRegistrar extends SavedData implements IRoomRegistrar {
+public class RoomRegistrar extends CodecBackedSavedData<RoomRegistrar> implements IRoomRegistrar {
 
     public static final Logger LOGS = LogManager.getLogger();
 
     public static final String DATA_NAME = Constants.MOD_ID + "_rooms";
-    public static final SavedData.Factory<RoomRegistrar> FACTORY =
-            new SavedData.Factory<>(RoomRegistrar::new, RoomRegistrar.Serializer::load, null);
 
+    public static final Codec<RoomRegistrar> CODEC = RoomRegistrationNode.CODEC.listOf()
+            .fieldOf("rooms")
+            .xmap(RoomRegistrar::new, (RoomRegistrar x) -> List.copyOf(x.registrationNodes.values()))
+            .codec();
     private final MemoryGraph graph;
     private final Map<String, RoomRegistrationNode> registrationNodes;
 
     private RoomRegistrar() {
+        super(CodecBackedSavedData.codecFactory(CODEC, RoomRegistrar::new));
         this.graph = new MemoryGraph();
         this.registrationNodes = new HashMap<>();
+    }
+
+    private RoomRegistrar(List<RoomRegistrationNode> regNodes) {
+        super(CodecBackedSavedData.codecFactory(CODEC, RoomRegistrar::new));
+        this.graph = new MemoryGraph();
+        this.registrationNodes = new HashMap<>();
+        regNodes.forEach(this::registerDirty);
     }
 
     public static RoomRegistrar forServer(MinecraftServer server) throws MissingDimensionException {
         return CompactDimension.forServer(server)
                 .getDataStorage()
-                .computeIfAbsent(FACTORY, DATA_NAME);
-    }
-
-    @Override
-    @NotNull
-    public CompoundTag save(@NotNull CompoundTag tag) {
-        return Serializer.serialize(this, tag);
+                .computeIfAbsent(CodecBackedSavedData.codecFactory(CODEC, RoomRegistrar::new).asSDFactory(), DATA_NAME);
     }
 
     @Override
@@ -125,29 +126,5 @@ public class RoomRegistrar extends SavedData implements IRoomRegistrar {
     private void registerDirty(RoomRegistrationNode node) {
         registrationNodes.putIfAbsent(node.code(), node);
         graph.addNode(node);
-    }
-
-    public static class Serializer {
-
-        public static CompoundTag serialize(RoomRegistrar instance, CompoundTag tag) {
-
-            final var roomData = RoomRegistrationNode.CODEC.listOf()
-                    .encodeStart(NbtOps.INSTANCE, List.copyOf(instance.registrationNodes.values()))
-                    .getOrThrow(false, LOGS::error);
-
-            tag.put("rooms", roomData);
-            return tag;
-        }
-
-        public static RoomRegistrar load(CompoundTag tag) {
-            RoomRegistrar registrar = new RoomRegistrar();
-
-            RoomRegistrationNode.CODEC.listOf()
-                    .parse(NbtOps.INSTANCE, tag.getList("rooms", CompoundTag.TAG_COMPOUND))
-                    .getOrThrow(false, LOGS::error)
-                    .forEach(registrar::registerDirty);
-
-            return registrar;
-        }
     }
 }
