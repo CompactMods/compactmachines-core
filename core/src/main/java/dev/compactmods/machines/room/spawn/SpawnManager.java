@@ -33,7 +33,7 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
 
     private final Logger LOGS = LogManager.getLogger();
 
-    private static final UnboundedMapCodec<UUID, RoomSpawn> PLAYER_SPAWNS_CODEC = Codec.unboundedMap(UUIDUtil.CODEC, RoomSpawn.CODEC);
+    private static final UnboundedMapCodec<UUID, RoomSpawn> PLAYER_SPAWNS_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, RoomSpawn.CODEC);
     private static final Codec<SpawnManager> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.STRING.fieldOf("roomCode").forGetter(x -> x.roomCode),
             PLAYER_SPAWNS_CODEC.fieldOf("player_spawns").forGetter(x -> x.playerSpawns),
@@ -50,6 +50,11 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
         this.defaultSpawn = null;
     }
 
+    public SpawnManager(String roomCode, IRoomBoundaries roomBounds) {
+        this(roomCode, Collections.emptyMap(), new RoomSpawn(roomBounds.defaultSpawn(), Vec2.ZERO));
+        this.roomBounds = roomBounds.innerBounds();
+    }
+
     public SpawnManager(String roomCode, Map<UUID, RoomSpawn> playerSpawns, RoomSpawn defaultSpawn) {
         super(CODEC, () -> new SpawnManager(roomCode));
         this.roomCode = roomCode;
@@ -57,29 +62,26 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
         this.defaultSpawn = defaultSpawn;
     }
 
+
     public static SpawnManager forRoom(MinecraftServer server, String roomCode, IRoomBoundaries roomBounds) throws MissingDimensionException {
         String roomFilename = Constants.MOD_ID + "_room_" + roomCode;
         var manager = CompactDimension.forServer(server)
                 .getDataStorage()
-                .computeIfAbsent(new CodecWrappedSavedData<>(CODEC, () -> new SpawnManager(roomCode)).sd(), roomFilename);
+                .computeIfAbsent(new CodecWrappedSavedData<>(CODEC, () -> new SpawnManager(roomCode, roomBounds)).sd(), roomFilename);
 
-        manager.setBoundaries(roomBounds.innerBounds());
-        manager.setDefaultSpawn(roomBounds.defaultSpawn(), Vec2.ZERO);
         return manager;
-    }
-
-    private void setBoundaries(AABB roomBounds) {
-        this.roomBounds = roomBounds;
     }
 
     @Override
     public void resetPlayerSpawn(UUID player) {
         playerSpawns.remove(player);
+        this.setDirty();
     }
 
     @Override
     public void setDefaultSpawn(Vec3 position, Vec2 rotation) {
         defaultSpawn = new RoomSpawn(position, rotation);
+        this.setDirty();
     }
 
     @Override
@@ -98,6 +100,8 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
             playerSpawns.replace(player, new RoomSpawn(location, rotation));
         else
             playerSpawns.put(player, new RoomSpawn(location, rotation));
+
+        this.setDirty();
     }
 
     private record RoomSpawns(RoomSpawn defaultSpawn, Map<UUID, RoomSpawn> playerSpawnsSnapshot) implements IRoomSpawns {

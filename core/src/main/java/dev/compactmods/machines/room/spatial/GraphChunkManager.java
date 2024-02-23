@@ -52,8 +52,11 @@ public class GraphChunkManager implements IRoomChunkManager {
         if (!chunks.containsKey(chunk)) return Optional.empty();
         final var chunkNode = chunks.get(chunk);
 
-        return graph.adjNodeStream(GraphNodes.LOOKUP_ROOM_REGISTRATION, chunkNode)
-                .map(RoomRegistrationNode::code)
+        return graph.inboundEdges(chunkNode, RoomReferenceNode.class)
+                .map(GraphEdge::source)
+                .map(WeakReference::get)
+                .filter(Objects::nonNull)
+                .map(RoomReferenceNode::code)
                 .findFirst();
     }
 
