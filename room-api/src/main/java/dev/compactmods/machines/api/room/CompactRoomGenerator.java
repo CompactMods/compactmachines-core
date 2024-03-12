@@ -1,7 +1,11 @@
 package dev.compactmods.machines.api.room;
 
 import dev.compactmods.machines.api.WallConstants;
+import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
+import dev.compactmods.machines.api.util.AABBAligner;
+import dev.compactmods.machines.api.util.AABBHelper;
 import dev.compactmods.machines.api.util.BlockSpaceUtil;
+import dev.compactmods.machines.api.util.VectorUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -11,10 +15,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 
 public class CompactRoomGenerator {
 
@@ -53,7 +60,7 @@ public class CompactRoomGenerator {
      *
      * @param world
      * @param outerBounds Outer dimensions of the room.
-     * @param block Block to use for walls.
+     * @param block       Block to use for walls.
      */
     public static void generateRoom(LevelAccessor world, AABB outerBounds, BlockState block) {
 
@@ -67,20 +74,40 @@ public class CompactRoomGenerator {
                 .forEach(p -> world.setBlock(p, Blocks.AIR.defaultBlockState(), 7));
     }
 
-    public static BlockPos cornerFromSize(Vec3i dimensions, Vec3 center) {
-        Vec3 offset = new Vec3(
-                Math.floor(dimensions.getX() / 2f),
-                Math.floor(dimensions.getY() / 2f),
-                Math.floor(dimensions.getZ() / 2f)
-        );
-
-        return BlockPos.containing(center.subtract(offset));
-    }
-
-    public static void fillWithTemplate(ServerLevel level, ResourceLocation template, Vec3i dimensions, Vec3 center) {
+    public static void populateStructure(ServerLevel level, ResourceLocation template, AABB roomInnerBounds, RoomStructureInfo.RoomStructurePlacement placement) {
         level.getStructureManager().get(template).ifPresent(tem -> {
-            BlockPos placeAt = cornerFromSize(dimensions, center);
-            tem.placeInWorld(level, placeAt, placeAt, new StructurePlaceSettings(), level.random, Block.UPDATE_ALL);
+
+            Vector3d templateSize = VectorUtils.convert3d(tem.getSize());
+
+            if (!AABBHelper.fitsInside(roomInnerBounds, templateSize)) {
+                // skip: structure too large to place in room
+                return;
+            }
+
+            var placementSettings = new StructurePlaceSettings()
+                    .setRotation(Rotation.NONE)
+                    .setMirror(Mirror.NONE);
+
+            AABB placementBounds = null;
+            final AABBAligner aligner = AABBAligner.create(roomInnerBounds, templateSize);
+            switch (placement) {
+                case CENTERED -> placementBounds = aligner
+                        .center(roomInnerBounds.getCenter())
+                        .align();
+
+                case CENTERED_CEILING -> placementBounds = aligner
+                        .boundedDirection(Direction.UP)
+                        .align();
+
+                case CENTERED_FLOOR -> placementBounds = aligner
+                        .boundedDirection(Direction.DOWN)
+                        .align();
+            }
+
+            if(placementBounds != null) {
+                BlockPos placeAt = BlockPos.containing(AABBHelper.minCorner(placementBounds));
+                tem.placeInWorld(level, placeAt, placeAt, placementSettings, level.random, Block.UPDATE_ALL);
+            }
         });
     }
 }

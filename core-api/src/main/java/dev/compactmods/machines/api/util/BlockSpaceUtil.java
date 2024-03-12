@@ -39,8 +39,8 @@ public class BlockSpaceUtil {
         if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE)
             offset -= 1;
 
-        var centerWallBlock = center.relative(direction, offset);
-        return BlockPos.containing(centerWallBlock);
+        var centerWallPos = center.relative(direction, offset);
+        return BlockPos.containing(centerWallPos);
     }
 
     public static AABB getPlaneAABB(Direction direction) {

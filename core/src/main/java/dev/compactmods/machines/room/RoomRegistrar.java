@@ -10,7 +10,7 @@ import dev.compactmods.feather.MemoryGraph;
 import dev.compactmods.machines.api.Constants;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.api.dimension.MissingDimensionException;
-import dev.compactmods.machines.api.util.AABBHelper;
+import dev.compactmods.machines.api.util.AABBAligner;
 import dev.compactmods.machines.data.CodecBackedSavedData;
 import dev.compactmods.machines.room.graph.node.RoomRegistrationNode;
 import dev.compactmods.machines.util.MathUtil;
@@ -70,7 +70,7 @@ public class RoomRegistrar extends CodecBackedSavedData<RoomRegistrar> implement
         final var region = MathUtil.getRegionPositionByIndex(registrationNodes.size());
         final var floor = MathUtil.getCenterWithY(region, 0);
 
-        return AABBHelper.alignFloor(template.getZeroBoundaries().move(floor), 0);
+        return AABBAligner.floor(template.getZeroBoundaries().move(floor), 0);
     }
 
     @Override

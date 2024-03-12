@@ -55,6 +55,13 @@ public class RoomApi {
         final var instance = INSTANCE.registrar().createNew(template, owner);
         final var compactDim = CompactDimension.forServer(server);
         CompactRoomGenerator.generateRoom(compactDim, instance.boundaries().outerBounds());
+
+        if(!template.structures().isEmpty()) {
+            for(var struct : template.structures()) {
+                CompactRoomGenerator.populateStructure(compactDim, struct.template(), instance.boundaries().innerBounds(), struct.placement());
+            }
+        }
+
         return instance;
     }
 

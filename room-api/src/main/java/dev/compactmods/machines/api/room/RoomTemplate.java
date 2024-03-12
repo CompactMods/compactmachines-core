@@ -10,6 +10,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import static dev.compactmods.machines.api.Constants.MOD_ID;
 
 /**
@@ -20,21 +25,21 @@ import static dev.compactmods.machines.api.Constants.MOD_ID;
  * @param color           The color of the machine blocks created for this template.
  * @param prefillTemplate A template (structure) file reference, if specified this will fill the new room post-generation
  */
-public record RoomTemplate(Vec3i internalDimensions, int color, ResourceLocation prefillTemplate) {
+public record RoomTemplate(Vec3i internalDimensions, int color, List<RoomStructureInfo> structures) {
 
     public static final ResourceKey<Registry<RoomTemplate>> REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "room_templates"));
 
-    public static final ResourceLocation NO_TEMPLATE = new ResourceLocation(Constants.MOD_ID, "empty");
     public static final RoomTemplate INVALID_TEMPLATE = new RoomTemplate(0, 0);
 
     public static Codec<RoomTemplate> CODEC = RecordCodecBuilder.create(i -> i.group(
             Vec3i.CODEC.fieldOf("dimensions").forGetter(RoomTemplate::internalDimensions),
             Codec.INT.fieldOf("color").forGetter(RoomTemplate::color),
-            ResourceLocation.CODEC.optionalFieldOf("template", NO_TEMPLATE).forGetter(RoomTemplate::prefillTemplate)
+            RoomStructureInfo.CODEC.listOf().optionalFieldOf("structures", Collections.emptyList())
+                    .forGetter(RoomTemplate::structures)
     ).apply(i, RoomTemplate::new));
 
     public RoomTemplate(int cubicSizeInternal, int color) {
-        this(new Vec3i(cubicSizeInternal, cubicSizeInternal, cubicSizeInternal), color, NO_TEMPLATE);
+        this(new Vec3i(cubicSizeInternal, cubicSizeInternal, cubicSizeInternal), color, Collections.emptyList());
     }
 
     public AABB getZeroBoundaries() {
