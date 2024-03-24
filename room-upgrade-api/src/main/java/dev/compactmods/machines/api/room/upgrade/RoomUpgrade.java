@@ -1,15 +1,14 @@
 package dev.compactmods.machines.api.room.upgrade;
 
-import com.mojang.serialization.Codec;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 
 import static dev.compactmods.machines.api.Constants.MOD_ID;
 
 public interface RoomUpgrade {
 
-    ResourceKey<Registry<RoomUpgrade>> REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "room_upgrades"));
+    TagKey<Item> ITEM_TAG = TagKey.create(Registries.ITEM, new ResourceLocation(MOD_ID, "room_upgrade"));
 
-    Codec<? extends RoomUpgrade> codec();
 }

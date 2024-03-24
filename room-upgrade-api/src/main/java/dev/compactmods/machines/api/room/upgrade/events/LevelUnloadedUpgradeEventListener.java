@@ -1,9 +1,11 @@
-package dev.compactmods.machines.api.room.upgrade;
+package dev.compactmods.machines.api.room.upgrade.events;
 
 import dev.compactmods.machines.api.room.RoomInstance;
+import dev.compactmods.machines.api.room.upgrade.RoomUpgrade;
 import net.minecraft.server.level.ServerLevel;
 
-public interface LevelUnloadedUpgradeEventListener extends RoomUpgrade {
+@FunctionalInterface
+public interface LevelUnloadedUpgradeEventListener {
 
     /**
      * Called when a level is unloaded.

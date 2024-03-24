@@ -9,8 +9,11 @@ import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.file.Path;
 
 import static dev.compactmods.machines.api.Constants.MOD_ID;
 
@@ -30,6 +33,14 @@ public abstract class CompactDimension {
             throw new MissingDimensionException();
 
         return level;
+    }
+
+    public static Path getDataDirectory(@NotNull MinecraftServer server) {
+        return DimensionType.getStorageFolder(CompactDimension.LEVEL_KEY, server.getWorldPath(LevelResource.ROOT));
+    }
+
+    public static Path getDataDirectory(@NotNull LevelStorageSource.LevelDirectory levelDir) {
+        return DimensionType.getStorageFolder(CompactDimension.LEVEL_KEY, levelDir.path());
     }
 
     @NotNull
