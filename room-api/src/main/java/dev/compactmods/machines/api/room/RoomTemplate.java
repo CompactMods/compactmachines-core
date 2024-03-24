@@ -25,31 +25,31 @@ import static dev.compactmods.machines.api.Constants.MOD_ID;
  * @param color           The color of the machine blocks created for this template.
  * @param prefillTemplate A template (structure) file reference, if specified this will fill the new room post-generation
  */
-public record RoomTemplate(Vec3i internalDimensions, int color, List<RoomStructureInfo> structures) {
+public record RoomTemplate(RoomDimensions internalDimensions, int color, List<RoomStructureInfo> structures) {
 
     public static final ResourceKey<Registry<RoomTemplate>> REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation(MOD_ID, "room_templates"));
 
     public static final RoomTemplate INVALID_TEMPLATE = new RoomTemplate(0, 0);
 
     public static Codec<RoomTemplate> CODEC = RecordCodecBuilder.create(i -> i.group(
-            Vec3i.CODEC.fieldOf("dimensions").forGetter(RoomTemplate::internalDimensions),
+            RoomDimensions.CODEC.fieldOf("dimensions").forGetter(RoomTemplate::internalDimensions),
             Codec.INT.fieldOf("color").forGetter(RoomTemplate::color),
             RoomStructureInfo.CODEC.listOf().optionalFieldOf("structures", Collections.emptyList())
                     .forGetter(RoomTemplate::structures)
     ).apply(i, RoomTemplate::new));
 
     public RoomTemplate(int cubicSizeInternal, int color) {
-        this(new Vec3i(cubicSizeInternal, cubicSizeInternal, cubicSizeInternal), color, Collections.emptyList());
+        this(RoomDimensions.cubic(cubicSizeInternal), color, Collections.emptyList());
     }
 
     public AABB getZeroBoundaries() {
-        return AABB.ofSize(Vec3.ZERO, internalDimensions.getX(), internalDimensions.getY(), internalDimensions.getZ())
+        return AABB.ofSize(Vec3.ZERO, internalDimensions.width(), internalDimensions.height(), internalDimensions.depth())
                 .inflate(1)
-                .move(0, internalDimensions.getY() / 2f, 0);
+                .move(0, internalDimensions.height() / 2f, 0);
     }
 
     public AABB getBoundariesCenteredAt(Vec3 center) {
-        return AABB.ofSize(center, internalDimensions.getX(), internalDimensions.getY(), internalDimensions.getZ())
+        return AABB.ofSize(center, internalDimensions.width(), internalDimensions.height(), internalDimensions.depth())
                 .inflate(1);
     }
 }
