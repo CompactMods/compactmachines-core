@@ -96,11 +96,7 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
         if(!roomBounds.contains(location))
             return;
 
-        if (playerSpawns.containsKey(player))
-            playerSpawns.replace(player, new RoomSpawn(location, rotation));
-        else
-            playerSpawns.put(player, new RoomSpawn(location, rotation));
-
+        playerSpawns.put(player, new RoomSpawn(location, rotation));
         this.setDirty();
     }
 

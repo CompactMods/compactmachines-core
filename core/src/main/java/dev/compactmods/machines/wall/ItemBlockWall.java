@@ -1,8 +1,7 @@
 package dev.compactmods.machines.wall;
 
-import dev.compactmods.machines.api.Tooltips;
+import dev.compactmods.machines.api.Translations;
 import dev.compactmods.machines.api.WallConstants;
-import dev.compactmods.machines.i18n.TranslationUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -27,18 +26,8 @@ public class ItemBlockWall extends BlockItem {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         if (stack.is(WallConstants.TAG_SOLID_WALL_ITEMS)) {
-            MutableComponent text;
-            if (Screen.hasShiftDown()) {
-                text = TranslationUtil.tooltip(Tooltips.Details.SOLID_WALL)
-                        .withStyle(ChatFormatting.DARK_RED);
-            } else {
-                text = TranslationUtil.tooltip(Tooltips.HINT_HOLD_SHIFT)
-                        .withStyle(ChatFormatting.DARK_GRAY)
-                        .withStyle(ChatFormatting.ITALIC);
-            }
-
-            tooltip.add(text);
+            tooltip.add(Screen.hasShiftDown() ?
+                    Translations.UNBREAKABLE_BLOCK.get() : Translations.HINT_HOLD_SHIFT.get());
         }
-
     }
 }
