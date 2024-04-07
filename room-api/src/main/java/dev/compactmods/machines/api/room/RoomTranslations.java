@@ -1,6 +1,5 @@
 package dev.compactmods.machines.api.room;
 
-import com.mojang.authlib.GameProfile;
 import dev.compactmods.machines.api.Constants;
 import dev.compactmods.machines.api.room.function.PlayerAndRoomCodeFunction;
 import dev.compactmods.machines.api.util.AABBHelper;
@@ -8,7 +7,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiFunction;
@@ -25,17 +23,16 @@ public interface RoomTranslations {
 
     Function<Player, Component> PLAYER_NOT_IN_COMPACT_DIM = (player) -> Component.translatableWithFallback(IDs.Errors.PLAYER_NOT_IN_COMPACT_DIM, "", player.getDisplayName());
 
-    Function<Player, Component> UNKNOWN_ROOM_BY_PLAYER_CHUNK = (player) -> Component.translatableWithFallback(IDs.Errors.UNKNOWN_ROOM_BY_PLAYER_CHUNK, "Room not found at chunk: %s", player.chunkPosition())
+    Function<Player, Component> UNKNOWN_ROOM_BY_PLAYER_CHUNK = (player) -> Component
+            .translatableWithFallback(IDs.Errors.UNKNOWN_ROOM_BY_PLAYER_CHUNK, "Room not found at chunk: %s", player.chunkPosition())
             .withStyle(ChatFormatting.DARK_RED);
 
-    Function<String, Component> UNKNOWN_ROOM_BY_CODE = (roomCode) -> Component.translatableWithFallback(IDs.Errors.UNKNOWN_ROOM_BY_CODE, "Room not found: %s", roomCode);
+    Function<String, Component> UNKNOWN_ROOM_BY_CODE = (roomCode) -> Component
+            .translatableWithFallback(IDs.Errors.UNKNOWN_ROOM_BY_CODE, "Room not found: %s", roomCode);
 
     BiFunction<BlockPos, RoomInstance, Component> MACHINE_ROOM_INFO = (machinePos, info) -> Component.translatableWithFallback(IDs.MACHINE_ROOM_INFO,
             "Machine at %1$s is bound to a %2$s size room at %3$s",
             machinePos.toShortString(), AABBHelper.toString(info.boundaries().innerBounds()), info.boundaries().innerBounds().getCenter());
-
-    Function<GameProfile, Component> CANNOT_RENAME_NOT_OWNER = (owner) -> Component
-            .translatableWithFallback(IDs.Errors.CANNOT_RENAME_NOT_OWNER, "You are not the room owner; only %s may make changes.", owner.getName());
 
     PlayerAndRoomCodeFunction<Component> ROOM_SPAWNPOINT_SET = (player, roomCode) -> Component
             .translatableWithFallback(IDs.ROOM_SPAWNPOINT_SET, "Room spawn for %s updated.", player.getDisplayName())
