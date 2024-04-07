@@ -1,7 +1,12 @@
 package dev.compactmods.machines.api.machine.item;
 
+import dev.compactmods.machines.api.machine.MachineConstants;
+import dev.compactmods.machines.api.machine.block.IBoundCompactMachineBlockEntity;
+import dev.compactmods.machines.api.machine.block.ICompactMachineBlockEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -24,6 +29,11 @@ public interface ICompactMachineItem {
     default ItemStack setColor(ItemStack stack, int color) {
         var tag = stack.getOrCreateTag();
         tag.putInt(NBT_COLOR, color);
+
+        var blockEntityData = new CompoundTag();
+        blockEntityData.putInt(ICompactMachineBlockEntity.NBT_COLOR, color);
+        addBlockEntityData(stack, blockEntityData);
+
         return stack;
     }
 
@@ -35,6 +45,11 @@ public interface ICompactMachineItem {
             return 0xFFFFFFFF;
 
         return tag.getInt(NBT_COLOR);
+    }
+
+    default void addBlockEntityData(@NotNull ItemStack stack, @NotNull CompoundTag stackTag) {
+        final var existingTag = stack.getOrCreateTagElement("BlockEntityTag");
+        existingTag.merge(stackTag);
     }
 
 }

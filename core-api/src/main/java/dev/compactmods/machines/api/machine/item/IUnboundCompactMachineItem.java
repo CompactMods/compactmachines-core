@@ -1,6 +1,11 @@
 package dev.compactmods.machines.api.machine.item;
 
 import dev.compactmods.machines.api.Constants;
+import dev.compactmods.machines.api.machine.MachineConstants;
+import dev.compactmods.machines.api.machine.block.IBoundCompactMachineBlockEntity;
+import dev.compactmods.machines.api.machine.block.ICompactMachineBlockEntity;
+import dev.compactmods.machines.api.machine.block.IUnboundCompactMachineBlockEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +18,12 @@ public interface IUnboundCompactMachineItem extends ICompactMachineItem {
     default ItemStack setTemplate(ItemStack stack, ResourceLocation templateId) {
         var tag = stack.getOrCreateTag();
         tag.putString(NBT_TEMPLATE_ID, templateId.toString());
+
+        var blockEntityData = new CompoundTag();
+        blockEntityData.putString("id", MachineConstants.UNBOUND_MACHINE_ENTITY.toString());
+        blockEntityData.putString(IUnboundCompactMachineBlockEntity.NBT_TEMPLATE_ID, templateId.toString());
+        addBlockEntityData(stack, blockEntityData);
+
         return stack;
     }
 
