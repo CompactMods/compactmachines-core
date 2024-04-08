@@ -3,25 +3,21 @@ package dev.compactmods.machines.room.spawn;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
+import dev.compactmods.machines.api.Constants;
+import dev.compactmods.machines.api.dimension.CompactDimension;
+import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import dev.compactmods.machines.api.room.spatial.IRoomBoundaries;
 import dev.compactmods.machines.api.room.spawn.IRoomSpawn;
 import dev.compactmods.machines.api.room.spawn.IRoomSpawnManager;
 import dev.compactmods.machines.api.room.spawn.IRoomSpawns;
-import dev.compactmods.machines.api.Constants;
-import dev.compactmods.machines.api.dimension.CompactDimension;
-import dev.compactmods.machines.api.dimension.MissingDimensionException;
 import dev.compactmods.machines.data.CodecBackedSavedData;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,6 +65,7 @@ public class SpawnManager extends CodecBackedSavedData<SpawnManager> implements 
                 .getDataStorage()
                 .computeIfAbsent(new CodecWrappedSavedData<>(CODEC, () -> new SpawnManager(roomCode, roomBounds)).sd(), roomFilename);
 
+        manager.roomBounds = roomBounds.innerBounds();
         return manager;
     }
 

@@ -12,8 +12,6 @@ import java.util.Optional;
 
 public interface ICompactMachineItem {
 
-    String NBT_COLOR = "machine_color";
-
     String NBT_CUSTOM_NAME = "custom_name";
 
     default Optional<String> getMachineName(ItemStack stack) {
@@ -26,30 +24,9 @@ public interface ICompactMachineItem {
         return Optional.of(tag.getString(NBT_CUSTOM_NAME));
     }
 
-    default ItemStack setColor(ItemStack stack, int color) {
-        var tag = stack.getOrCreateTag();
-        tag.putInt(NBT_COLOR, color);
-
-        var blockEntityData = new CompoundTag();
-        blockEntityData.putInt(ICompactMachineBlockEntity.NBT_COLOR, color);
-        addBlockEntityData(stack, blockEntityData);
-
-        return stack;
-    }
-
-    default int getMachineColor(ItemStack stack) {
-        if (!stack.hasTag()) return 0xFFFFFFFF;
-
-        final var tag = stack.getTag();
-        if (tag == null || tag.isEmpty() || !tag.contains(NBT_COLOR))
-            return 0xFFFFFFFF;
-
-        return tag.getInt(NBT_COLOR);
-    }
 
     default void addBlockEntityData(@NotNull ItemStack stack, @NotNull CompoundTag stackTag) {
         final var existingTag = stack.getOrCreateTagElement("BlockEntityTag");
         existingTag.merge(stackTag);
     }
-
 }
