@@ -12,11 +12,7 @@ else
 plugins {
     id("java-library")
     id("maven-publish")
-    id("org.spongepowered.gradle.vanilla") version "0.2.1-SNAPSHOT"
-}
-
-minecraft {
-    version(libraries.versions.minecraft.get())
+    alias(neoforged.plugins.vanilla)
 }
 
 base {
@@ -25,24 +21,27 @@ base {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
     withJavadocJar()
 }
 
 dependencies {
-     compileOnly(coreApi)
+    compileOnly(coreApi)
+    api(mojang.minecraft)
 }
 
 tasks.withType<Jar> {
     manifest {
         val now = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(Date())
-        attributes(mapOf(
+        attributes(
+            mapOf(
                 "Specification-Title" to "Compact Machines - Rooms API",
                 "Specification-Version" to "1", // We are version 1 of ourselves
                 "Implementation-Title" to "Compact Machines - Rooms API",
                 "Implementation-Timestamp" to now,
                 "FMLModType" to "GAMELIBRARY"
-        ))
+            )
+        )
     }
 }
 

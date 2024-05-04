@@ -9,10 +9,8 @@ import org.apache.logging.log4j.Logger;
 
 public class NbtUtil {
 
-    private static final Logger LOGS = LogManager.getLogger();
-
     public static ChunkPos readChunkPos(Tag tag) {
         return CodecExtensions.CHUNKPOS.parse(NbtOps.INSTANCE, tag)
-                .getOrThrow(false, LOGS::fatal);
+                .getOrThrow();
     }
 }

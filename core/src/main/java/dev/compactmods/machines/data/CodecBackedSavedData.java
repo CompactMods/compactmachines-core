@@ -1,6 +1,7 @@
 package dev.compactmods.machines.data;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -21,10 +22,10 @@ public abstract class CodecBackedSavedData<D extends SavedData> extends SavedDat
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
+    public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider pRegistries) {
         final var data = factory.codec
                 .encodeStart(NbtOps.INSTANCE, (D) this)
-                .getOrThrow(false, LOGS::error);
+                .getOrThrow();
 
         if (data instanceof CompoundTag dataTag) {
             compoundTag.merge(dataTag);
@@ -39,8 +40,8 @@ public abstract class CodecBackedSavedData<D extends SavedData> extends SavedDat
             return new SavedData.Factory<>(factory, this::load, null);
         }
 
-        public D load(CompoundTag tag) {
-            return codec.parse(NbtOps.INSTANCE, tag).getOrThrow(false, LOGS::error);
+        public D load(CompoundTag tag, HolderLookup.Provider registries) {
+            return codec.parse(NbtOps.INSTANCE, tag).getOrThrow();
         }
     }
 }

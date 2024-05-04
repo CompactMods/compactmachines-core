@@ -6,21 +6,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public abstract class CodecExtensions {
-
-    private static final Logger CODEC_LOG = LogManager.getLogger(CodecExtensions.class);
-
-    public static final Codec<Vec3> VECTOR3D = DoubleStreamExtensions.CODEC
-            .comapFlatMap(i -> DoubleStreamExtensions.fixedDoubleSize(i, 3)
-                    .map(out -> new Vec3(out[0], out[1], out[2])), vec -> DoubleStream.of(vec.x, vec.y, vec.z));
 
     public static final Codec<Vec2> VEC2 = Codec.FLOAT.listOf()
             .comapFlatMap((vec) -> Util.fixedSize(vec, 2).map(
@@ -35,7 +25,7 @@ public abstract class CodecExtensions {
 
         final var encoded = codec
                 .encodeStart(NbtOps.INSTANCE, instance)
-                .getOrThrow(false, CODEC_LOG::fatal);
+                .getOrThrow();
 
         if (encoded instanceof CompoundTag ect)
             tag.merge(ect);

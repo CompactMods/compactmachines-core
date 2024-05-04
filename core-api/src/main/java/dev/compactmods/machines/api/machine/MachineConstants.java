@@ -36,5 +36,8 @@ public interface MachineConstants {
     TagKey<Block> MACHINE_BLOCK = KeyHelper.blockTag("machine");
     TagKey<Item> MACHINE_ITEM = KeyHelper.itemTagKey("machine");
 
+    TagKey<Item> BOUND_MACHINE_ITEM = KeyHelper.itemTagKey("bound_machine");
+    TagKey<Item> NEW_MACHINE_ITEM = KeyHelper.itemTagKey("new_machine");
+
 
 }

@@ -22,8 +22,8 @@ public class ItemBlockWall extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
 
         if (stack.is(WallConstants.TAG_SOLID_WALL_ITEMS)) {
             tooltip.add(Screen.hasShiftDown() ?

@@ -20,7 +20,7 @@ public record GlobalPosWithRotation(ResourceKey<Level> dimension, Vec3 position,
      */
     public static final Codec<GlobalPosWithRotation> CODEC = RecordCodecBuilder.create(i -> i.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("dimension").forGetter(GlobalPosWithRotation::dimension),
-            CodecExtensions.VECTOR3D.fieldOf("pos").forGetter(GlobalPosWithRotation::position),
+            Vec3.CODEC.fieldOf("pos").forGetter(GlobalPosWithRotation::position),
             CodecExtensions.VEC2.optionalFieldOf("rot", Vec2.ZERO).forGetter(x -> x.rotation)
     ).apply(i, GlobalPosWithRotation::new));
 

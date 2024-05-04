@@ -21,15 +21,11 @@ var cmModules = listOf(coreApi, roomApi, roomUpgradeApi)
 plugins {
     java
     id("maven-publish")
-    id("org.spongepowered.gradle.vanilla") version "0.2.1-SNAPSHOT"
+    alias(neoforged.plugins.vanilla)
 }
 
 cmModules.forEach {
     project.evaluationDependsOn(it.path)
-}
-
-minecraft {
-    version(libraries.versions.minecraft.get())
 }
 
 base {
@@ -63,6 +59,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly(mojang.minecraft)
     cmModules.forEach {
         compileOnly(it)
     }

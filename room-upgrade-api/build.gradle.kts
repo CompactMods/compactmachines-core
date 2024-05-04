@@ -17,11 +17,7 @@ if (rootProject.name == "Compact Machines Core") {
 plugins {
     id("java-library")
     id("maven-publish")
-    id("org.spongepowered.gradle.vanilla") version "0.2.1-SNAPSHOT"
-}
-
-minecraft {
-    version(libraries.versions.minecraft.get())
+    alias(neoforged.plugins.vanilla)
 }
 
 base {
@@ -37,6 +33,7 @@ java {
 dependencies {
     compileOnly(coreApi)
     compileOnly(roomApi)
+    api(mojang.minecraft)
 }
 
 tasks.withType<Jar> {

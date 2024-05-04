@@ -7,11 +7,7 @@ val versionMain: String = System.getenv("VERSION") ?: "0.0.0"
 plugins {
     id("java-library")
     id("maven-publish")
-    id("org.spongepowered.gradle.vanilla") version "0.2.1-SNAPSHOT"
-}
-
-minecraft {
-    version(libraries.versions.minecraft.get())
+    alias(neoforged.plugins.vanilla)
 }
 
 sourceSets {
@@ -29,8 +25,12 @@ base {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
     withJavadocJar()
+}
+
+dependencies {
+    api(mojang.minecraft)
 }
 
 tasks.withType<JavaCompile> {

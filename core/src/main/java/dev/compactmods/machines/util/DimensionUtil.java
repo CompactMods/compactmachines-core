@@ -4,6 +4,7 @@ import com.mojang.serialization.JsonOps;
 import dev.compactmods.machines.api.dimension.CompactDimension;
 import dev.compactmods.machines.LoggingUtil;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -61,9 +62,9 @@ public class DimensionUtil {
     }
 
     @NotNull
-    public static DimensionDataStorage getDataStorage(@NotNull LevelStorageSource.LevelDirectory levelDir, ResourceKey<Level> key) {
+    public static DimensionDataStorage getDataStorage(@NotNull LevelStorageSource.LevelDirectory levelDir, ResourceKey<Level> key, HolderLookup.Provider provider) {
         final var folder = getDataFolder(levelDir, key).toFile();
         final var fixer = DataFixers.getDataFixer();
-        return new DimensionDataStorage(folder, fixer);
+        return new DimensionDataStorage(folder, fixer, provider);
     }
 }

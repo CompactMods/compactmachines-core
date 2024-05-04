@@ -1,5 +1,6 @@
 package dev.compactmods.machines.api.dimension;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -44,10 +45,10 @@ public abstract class CompactDimension {
     }
 
     @NotNull
-    public static DimensionDataStorage getDataStorage(@NotNull LevelStorageSource.LevelDirectory levelDir) {
+    public static DimensionDataStorage getDataStorage(@NotNull LevelStorageSource.LevelDirectory levelDir, HolderLookup.Provider holderLookup) {
         final var dimPath = DimensionType.getStorageFolder(CompactDimension.LEVEL_KEY, levelDir.path());
         final var fixer = DataFixers.getDataFixer();
-        return new DimensionDataStorage(dimPath.resolve("data").toFile(), fixer);
+        return new DimensionDataStorage(dimPath.resolve("data").toFile(), fixer, holderLookup);
     }
 
     public static boolean isLevelCompact(Level level) {
